@@ -1,0 +1,501 @@
+/* Chat Interface Animations */
+
+/* Message Appearance Animations */
+@keyframes message-slide-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes message-slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes message-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes message-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Message Animation Classes */
+.message-animate-in-left {
+  animation: message-slide-in-left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.message-animate-in-right {
+  animation: message-slide-in-right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.message-animate-fade-in {
+  animation: message-fade-in 0.3s ease-out;
+}
+
+.message-animate-pop-in {
+  animation: message-pop-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Typing Indicator Animations */
+@keyframes typing-dots {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+@keyframes typing-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes typing-wave {
+  0%, 40%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Typing Indicator Component */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 18px;
+  margin: 8px 0;
+  animation: message-fade-in 0.3s ease-out;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #666;
+  animation: typing-dots 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Chat Bubble Hover Effects */
+.chat-bubble {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-bubble:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chat-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.chat-bubble:hover::before {
+  left: 100%;
+}
+
+/* Message Status Animations */
+@keyframes status-check-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-45deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes status-delivered {
+  0% {
+    transform: translateX(-5px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes status-read {
+  0% {
+    color: #666;
+  }
+  100% {
+    color: #4285f4;
+  }
+}
+
+.status-animate-in {
+  animation: status-check-in 0.3s ease-out;
+}
+
+.status-delivered {
+  animation: status-delivered 0.2s ease-out;
+}
+
+.status-read {
+  animation: status-read 0.3s ease-out;
+}
+
+/* Chat Input Animations */
+.chat-input-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-input-focused {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes input-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(66, 133, 244, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
+  }
+}
+
+.chat-input-glow {
+  animation: input-glow 2s infinite;
+}
+
+/* Send Button Animations */
+@keyframes send-button-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes send-button-success {
+  0% {
+    transform: scale(1);
+    background-color: #4285f4;
+  }
+  50% {
+    transform: scale(1.1);
+    background-color: #34a853;
+  }
+  100% {
+    transform: scale(1);
+    background-color: #4285f4;
+  }
+}
+
+.send-button-pulse {
+  animation: send-button-pulse 0.3s ease-in-out;
+}
+
+.send-button-success {
+  animation: send-button-success 0.6s ease-in-out;
+}
+
+/* Scroll Animations */
+@keyframes scroll-to-bottom {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.scroll-to-bottom-button {
+  animation: scroll-to-bottom 0.3s ease-out;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-to-bottom-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Chat Header Animations */
+@keyframes header-slide-down {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.chat-header-animate {
+  animation: header-slide-down 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Online Status Animations */
+@keyframes online-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.online-status {
+  animation: online-pulse 2s infinite ease-in-out;
+}
+
+/* Media Message Animations */
+@keyframes media-load-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.media-animate-in {
+  animation: media-load-in 0.5s ease-out;
+}
+
+/* Reaction Animations */
+@keyframes reaction-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.reaction-animate {
+  animation: reaction-pop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Connection Status Animations */
+@keyframes connection-reconnecting {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes connection-connected {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.connection-reconnecting {
+  animation: connection-reconnecting 1s infinite ease-in-out;
+}
+
+.connection-connected {
+  animation: connection-connected 0.5s ease-out;
+}
+
+/* Sidebar Animations */
+@keyframes sidebar-slide-in {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sidebar-slide-out {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.sidebar-animate-in {
+  animation: sidebar-slide-in 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.sidebar-animate-out {
+  animation: sidebar-slide-out 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Conversation List Animations */
+@keyframes conversation-highlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(66, 133, 244, 0.1);
+  }
+}
+
+.conversation-highlight {
+  animation: conversation-highlight 0.6s ease-in-out;
+}
+
+/* Loading Animations */
+@keyframes chat-skeleton-loading {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.chat-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: chat-skeleton-loading 1.5s infinite;
+}
+
+/* Responsive Animation Adjustments */
+@media (max-width: 768px) {
+  .message-animate-in-left,
+  .message-animate-in-right {
+    animation-duration: 0.3s;
+  }
+  
+  .chat-bubble:hover {
+    transform: none;
+  }
+  
+  .send-button-pulse {
+    animation-duration: 0.2s;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .message-animate-in-left,
+  .message-animate-in-right,
+  .message-animate-fade-in,
+  .message-animate-pop-in,
+  .typing-dot,
+  .chat-bubble:hover,
+  .status-animate-in,
+  .send-button-pulse,
+  .online-status,
+  .media-animate-in,
+  .reaction-animate,
+  .connection-reconnecting,
+  .sidebar-animate-in,
+  .conversation-highlight,
+  .chat-skeleton {
+    animation: none;
+  }
+  
+  .chat-bubble:hover {
+    transform: none;
+  }
+  
+  .chat-input-focused {
+    transform: none;
+  }
+}

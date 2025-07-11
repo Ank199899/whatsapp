@@ -1,0 +1,9 @@
+This is a sample text file for testing media functionality.
+
+The media upload feature supports various file types including:
+- Images (JPG, PNG, GIF)
+- Documents (PDF, DOC, TXT)
+- Videos (MP4, AVI)
+- Audio (MP3, WAV)
+
+This file demonstrates the document preview functionality.

@@ -1,0 +1,304 @@
+/* Responsive Layout Auto-Adjustment System */
+
+/* CSS Custom Properties for Dynamic Scaling */
+:root {
+  --responsive-scale: 1;
+  --responsive-zoom: 1;
+  --responsive-font-scale: 1;
+  --responsive-spacing-scale: 1;
+  --responsive-border-scale: 1;
+}
+
+/* Base Responsive Container */
+.responsive-container {
+  transform: scale(var(--responsive-scale));
+  transform-origin: top left;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Zoom Level Specific Adjustments */
+.zoom-zoomed-in {
+  --responsive-font-scale: 0.85;
+  --responsive-spacing-scale: 0.8;
+  --responsive-border-scale: 0.9;
+}
+
+.zoom-zoomed-in .responsive-text {
+  font-size: calc(1rem * var(--responsive-font-scale));
+  line-height: calc(1.5 * var(--responsive-font-scale));
+}
+
+.zoom-zoomed-in .responsive-spacing {
+  padding: calc(1rem * var(--responsive-spacing-scale));
+  margin: calc(0.5rem * var(--responsive-spacing-scale));
+}
+
+.zoom-zoomed-out {
+  --responsive-font-scale: 1.15;
+  --responsive-spacing-scale: 1.2;
+  --responsive-border-scale: 1.1;
+}
+
+.zoom-zoomed-out .responsive-text {
+  font-size: calc(1rem * var(--responsive-font-scale));
+  line-height: calc(1.5 * var(--responsive-font-scale));
+}
+
+.zoom-zoomed-out .responsive-spacing {
+  padding: calc(1rem * var(--responsive-spacing-scale));
+  margin: calc(0.5rem * var(--responsive-spacing-scale));
+}
+
+/* Breakpoint Specific Containers */
+.responsive-container-xs {
+  max-width: 100%;
+  padding: 0.5rem;
+}
+
+.responsive-container-sm {
+  max-width: 640px;
+  padding: 0.75rem;
+}
+
+.responsive-container-md {
+  max-width: 768px;
+  padding: 1rem;
+}
+
+.responsive-container-lg {
+  max-width: 1024px;
+  padding: 1.25rem;
+}
+
+.responsive-container-xl {
+  max-width: 1280px;
+  padding: 1.5rem;
+}
+
+.responsive-container-2xl {
+  max-width: 1536px;
+  padding: 2rem;
+}
+
+/* Orientation Specific Adjustments */
+.orientation-portrait {
+  --responsive-sidebar-width: 100%;
+  --responsive-chat-height: calc(100vh - 60px);
+}
+
+.orientation-landscape {
+  --responsive-sidebar-width: 320px;
+  --responsive-chat-height: 100vh;
+}
+
+/* Smart Layout Components */
+.smart-layout {
+  display: grid;
+  transition: grid-template-columns 0.3s ease, grid-template-rows 0.3s ease;
+}
+
+/* Mobile Layout (xs, sm) */
+.responsive-container-xs .smart-layout,
+.responsive-container-sm .smart-layout {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+}
+
+.responsive-container-xs .smart-sidebar,
+.responsive-container-sm .smart-sidebar {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 80%;
+  height: 100vh;
+  z-index: 50;
+  transition: left 0.3s ease;
+}
+
+.responsive-container-xs .smart-sidebar.open,
+.responsive-container-sm .smart-sidebar.open {
+  left: 0;
+}
+
+/* Tablet Layout (md) */
+.responsive-container-md .smart-layout {
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 1fr;
+  height: 100vh;
+}
+
+/* Desktop Layout (lg, xl, 2xl) */
+.responsive-container-lg .smart-layout,
+.responsive-container-xl .smart-layout,
+.responsive-container-2xl .smart-layout {
+  grid-template-columns: var(--responsive-sidebar-width, 320px) 1fr;
+  grid-template-rows: 1fr;
+  height: 100vh;
+}
+
+/* Chat Interface Responsive Adjustments */
+.responsive-chat-container {
+  height: var(--responsive-chat-height, 100vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.responsive-chat-header {
+  flex-shrink: 0;
+  padding: calc(1rem * var(--responsive-spacing-scale, 1));
+  border-bottom: calc(1px * var(--responsive-border-scale, 1)) solid var(--border);
+}
+
+.responsive-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: calc(0.5rem * var(--responsive-spacing-scale, 1));
+  scroll-behavior: smooth;
+}
+
+.responsive-chat-input {
+  flex-shrink: 0;
+  padding: calc(1rem * var(--responsive-spacing-scale, 1));
+  border-top: calc(1px * var(--responsive-border-scale, 1)) solid var(--border);
+}
+
+/* Message Bubbles Responsive */
+.responsive-message {
+  max-width: calc(70% * var(--responsive-scale, 1));
+  padding: calc(0.75rem * var(--responsive-spacing-scale, 1));
+  margin: calc(0.25rem * var(--responsive-spacing-scale, 1)) 0;
+  border-radius: calc(1rem * var(--responsive-border-scale, 1));
+  font-size: calc(0.875rem * var(--responsive-font-scale, 1));
+  line-height: calc(1.4 * var(--responsive-font-scale, 1));
+  transition: all 0.2s ease;
+}
+
+/* Zoom-specific message adjustments */
+.zoom-zoomed-in .responsive-message {
+  max-width: 80%;
+  padding: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.zoom-zoomed-out .responsive-message {
+  max-width: 65%;
+  padding: 0.9rem;
+  font-size: 1rem;
+}
+
+/* Responsive Typography */
+.responsive-text-xs { font-size: calc(0.75rem * var(--responsive-font-scale, 1)); }
+.responsive-text-sm { font-size: calc(0.875rem * var(--responsive-font-scale, 1)); }
+.responsive-text-base { font-size: calc(1rem * var(--responsive-font-scale, 1)); }
+.responsive-text-lg { font-size: calc(1.125rem * var(--responsive-font-scale, 1)); }
+.responsive-text-xl { font-size: calc(1.25rem * var(--responsive-font-scale, 1)); }
+.responsive-text-2xl { font-size: calc(1.5rem * var(--responsive-font-scale, 1)); }
+
+/* Responsive Spacing */
+.responsive-p-1 { padding: calc(0.25rem * var(--responsive-spacing-scale, 1)); }
+.responsive-p-2 { padding: calc(0.5rem * var(--responsive-spacing-scale, 1)); }
+.responsive-p-3 { padding: calc(0.75rem * var(--responsive-spacing-scale, 1)); }
+.responsive-p-4 { padding: calc(1rem * var(--responsive-spacing-scale, 1)); }
+.responsive-p-6 { padding: calc(1.5rem * var(--responsive-spacing-scale, 1)); }
+.responsive-p-8 { padding: calc(2rem * var(--responsive-spacing-scale, 1)); }
+
+.responsive-m-1 { margin: calc(0.25rem * var(--responsive-spacing-scale, 1)); }
+.responsive-m-2 { margin: calc(0.5rem * var(--responsive-spacing-scale, 1)); }
+.responsive-m-3 { margin: calc(0.75rem * var(--responsive-spacing-scale, 1)); }
+.responsive-m-4 { margin: calc(1rem * var(--responsive-spacing-scale, 1)); }
+.responsive-m-6 { margin: calc(1.5rem * var(--responsive-spacing-scale, 1)); }
+.responsive-m-8 { margin: calc(2rem * var(--responsive-spacing-scale, 1)); }
+
+/* Responsive Gaps */
+.responsive-gap-1 { gap: calc(0.25rem * var(--responsive-spacing-scale, 1)); }
+.responsive-gap-2 { gap: calc(0.5rem * var(--responsive-spacing-scale, 1)); }
+.responsive-gap-3 { gap: calc(0.75rem * var(--responsive-spacing-scale, 1)); }
+.responsive-gap-4 { gap: calc(1rem * var(--responsive-spacing-scale, 1)); }
+.responsive-gap-6 { gap: calc(1.5rem * var(--responsive-spacing-scale, 1)); }
+
+/* Container Queries Support */
+@container (max-width: 400px) {
+  .responsive-message {
+    max-width: 90%;
+    font-size: 0.8rem;
+    padding: 0.6rem;
+  }
+}
+
+@container (min-width: 800px) {
+  .responsive-message {
+    max-width: 60%;
+  }
+}
+
+/* High DPI Display Adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .responsive-container {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .responsive-message {
+    border-width: 0.5px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .responsive-container,
+  .smart-layout,
+  .responsive-message {
+    transition: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .responsive-container {
+    transform: none !important;
+  }
+  
+  .smart-sidebar {
+    display: none !important;
+  }
+  
+  .responsive-chat-container {
+    height: auto !important;
+  }
+}
+
+/* Focus and Accessibility */
+.responsive-container:focus-within {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Animation Classes for Smooth Transitions */
+.responsive-fade-in {
+  animation: responsiveFadeIn 0.3s ease-out;
+}
+
+.responsive-slide-in {
+  animation: responsiveSlideIn 0.3s ease-out;
+}
+
+.responsive-scale-in {
+  animation: responsiveScaleIn 0.2s ease-out;
+}
+
+@keyframes responsiveFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes responsiveSlideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes responsiveScaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

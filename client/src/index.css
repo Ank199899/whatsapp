@@ -1,0 +1,838 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,600,700');
+
+/* Import responsive layout styles */
+@import './styles/responsive-layout.css';
+
+/* Import animated emoji styles */
+@import './styles/animated-emojis.css';
+
+/* Import chat animation styles */
+@import './styles/chat-animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cute Animation Styles */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(120deg); }
+  66% { transform: translateY(5px) rotate(240deg); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Gradient Animation for Video Button */
+@keyframes gradient-x {
+  0%, 100% {
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  50% {
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+}
+
+/* Welcome Message Animations */
+@keyframes fade-in-slow {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes bounce-in {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { text-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+  50% { text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+}
+
+@keyframes float-in {
+  0% { opacity: 0; transform: translateY(20px) rotate(-5deg); }
+  100% { opacity: 1; transform: translateY(0) rotate(0deg); }
+}
+
+.animate-fade-in-slow {
+  animation: fade-in-slow 1s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.8s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.6s ease-out;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-float-in {
+  animation: float-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Multiple Animated Emojis */
+.animated-emoji-container {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.emoji-track {
+  width: 200px;
+  height: 40px;
+  position: relative;
+  background: linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.emoji-track > div {
+  position: absolute;
+  font-size: 16px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  animation-duration: 4s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Individual emoji animations with different timings and paths */
+.emoji-1 {
+  top: 8px;
+  animation-name: emoji-move-1;
+  animation-delay: 0s;
+}
+
+.emoji-2 {
+  top: 20px;
+  animation-name: emoji-move-2;
+  animation-delay: 0.8s;
+}
+
+.emoji-3 {
+  top: 5px;
+  animation-name: emoji-move-3;
+  animation-delay: 1.6s;
+}
+
+.emoji-4 {
+  top: 25px;
+  animation-name: emoji-move-4;
+  animation-delay: 2.4s;
+}
+
+.emoji-5 {
+  top: 15px;
+  animation-name: emoji-move-5;
+  animation-delay: 3.2s;
+}
+
+/* Different animation paths for variety */
+@keyframes emoji-move-1 {
+  0% { left: -20px; transform: rotate(0deg) scale(0.8); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(0.9); }
+  75% { transform: rotate(270deg) scale(1.2); }
+  100% { left: 210px; transform: rotate(360deg) scale(0.8); }
+}
+
+@keyframes emoji-move-2 {
+  0% { left: -20px; transform: translateY(0px) scale(1); }
+  25% { transform: translateY(-8px) scale(1.3); }
+  50% { transform: translateY(8px) scale(0.7); }
+  75% { transform: translateY(-5px) scale(1.1); }
+  100% { left: 210px; transform: translateY(0px) scale(1); }
+}
+
+@keyframes emoji-move-3 {
+  0% { left: -20px; transform: rotate(0deg) translateY(0px); }
+  33% { transform: rotate(120deg) translateY(-10px); }
+  66% { transform: rotate(240deg) translateY(10px); }
+  100% { left: 210px; transform: rotate(360deg) translateY(0px); }
+}
+
+@keyframes emoji-move-4 {
+  0% { left: -20px; transform: scale(1.2) rotate(0deg); }
+  20% { transform: scale(0.6) rotate(72deg); }
+  40% { transform: scale(1.4) rotate(144deg); }
+  60% { transform: scale(0.8) rotate(216deg); }
+  80% { transform: scale(1.1) rotate(288deg); }
+  100% { left: 210px; transform: scale(1.2) rotate(360deg); }
+}
+
+@keyframes emoji-move-5 {
+  0% { left: -20px; transform: skew(0deg) scale(1); }
+  25% { transform: skew(15deg) scale(1.2); }
+  50% { transform: skew(-15deg) scale(0.8); }
+  75% { transform: skew(10deg) scale(1.1); }
+  100% { left: 210px; transform: skew(0deg) scale(1); }
+}
+
+/* Custom scrolling fixes for chat interface */
+.chat-container {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.chat-conversations-list {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+.chat-messages-area {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Ensure ScrollArea components work properly */
+[data-radix-scroll-area-viewport] {
+  height: 100% !important;
+  scroll-behavior: smooth;
+}
+
+/* Prevent body scrolling when chat is active */
+body.chat-active {
+  overflow: hidden;
+}
+
+/* Enhanced scrolling for inbox */
+.inbox-scrollable {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+.inbox-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.inbox-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.inbox-scrollable::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.inbox-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Custom scrollbar styling for better visibility */
+.chat-conversations-list::-webkit-scrollbar,
+.chat-messages-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-conversations-list::-webkit-scrollbar-track,
+.chat-messages-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.chat-conversations-list::-webkit-scrollbar-thumb,
+.chat-messages-area::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.chat-conversations-list::-webkit-scrollbar-thumb:hover,
+.chat-messages-area::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Fix for layout stability */
+.inbox-layout-stable {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.inbox-sidebar-stable {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.inbox-chat-stable {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.inbox-messages-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.inbox-input-container {
+  flex-shrink: 0;
+  position: relative;
+}
+
+:root {
+  /* Modern Background Colors */
+  --background: hsl(0, 0%, 100%);
+  --background-secondary: hsl(210, 20%, 98%);
+  --background-tertiary: hsl(210, 15%, 96%);
+  --foreground: hsl(0, 0%, 0%);
+
+  /* Muted Colors */
+  --muted: hsl(210, 20%, 96%);
+  --muted-foreground: hsl(0, 0%, 20%);
+
+  /* Surface Colors */
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 0%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 0%);
+
+  /* Border Colors */
+  --border: hsl(210, 20%, 90%);
+  --border-secondary: hsl(210, 15%, 85%);
+  --input: hsl(210, 20%, 96%);
+
+  /* Primary Brand Colors - Modern Blue Gradient */
+  --primary: hsl(220, 90%, 56%);
+  --primary-hover: hsl(220, 90%, 50%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --primary-light: hsl(220, 90%, 96%);
+
+  /* Secondary Colors */
+  --secondary: hsl(210, 20%, 96%);
+  --secondary-hover: hsl(210, 20%, 92%);
+  --secondary-foreground: hsl(0, 0%, 0%);
+
+  /* Accent Colors */
+  --accent: hsl(210, 20%, 94%);
+  --accent-hover: hsl(210, 20%, 90%);
+  --accent-foreground: hsl(0, 0%, 0%);
+
+  /* Status Colors */
+  --success: hsl(142, 76%, 36%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(38, 92%, 50%);
+  --warning-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+
+  /* Interactive Elements */
+  --ring: hsl(220, 90%, 56%);
+  --ring-offset: hsl(0, 0%, 100%);
+
+  /* Modern Radius */
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(220, 90%, 56%) 0%, hsl(240, 90%, 60%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(210, 20%, 96%) 0%, hsl(210, 15%, 92%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(220, 90%, 96%) 0%, hsl(240, 90%, 98%) 100%);
+
+  /* Sidebar colors */
+  --sidebar-background: hsl(0, 0%, 100%);
+  --sidebar-foreground: hsl(220, 100%, 15%);
+  --sidebar-primary: hsl(220, 100%, 50%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(210, 100%, 92%);
+  --sidebar-accent-foreground: hsl(220, 100%, 30%);
+  --sidebar-border: hsl(210, 100%, 90%);
+  --sidebar-ring: hsl(220, 100%, 50%);
+
+  /* Chart colors */
+  --chart-1: hsl(220, 100%, 50%);
+  --chart-2: hsl(210, 100%, 60%);
+  --chart-3: hsl(200, 100%, 55%);
+  --chart-4: hsl(230, 100%, 65%);
+  --chart-5: hsl(240, 100%, 70%);
+}
+
+.dark {
+  /* Modern Dark Background Colors */
+  --background: hsl(220, 15%, 6%);
+  --background-secondary: hsl(220, 15%, 8%);
+  --background-tertiary: hsl(220, 15%, 10%);
+  --foreground: hsl(0, 0%, 98%);
+
+  /* Muted Colors */
+  --muted: hsl(220, 15%, 12%);
+  --muted-foreground: hsl(220, 10%, 65%);
+
+  /* Surface Colors */
+  --popover: hsl(220, 15%, 8%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(220, 15%, 8%);
+  --card-foreground: hsl(0, 0%, 98%);
+
+  /* Border Colors */
+  --border: hsl(220, 15%, 18%);
+  --border-secondary: hsl(220, 15%, 22%);
+  --input: hsl(220, 15%, 12%);
+
+  /* Primary Brand Colors - Modern Blue for Dark Mode */
+  --primary: hsl(220, 90%, 65%);
+  --primary-hover: hsl(220, 90%, 70%);
+  --primary-foreground: hsl(220, 15%, 6%);
+  --primary-light: hsl(220, 90%, 15%);
+
+  /* Secondary Colors */
+  --secondary: hsl(220, 15%, 12%);
+  --secondary-hover: hsl(220, 15%, 16%);
+  --secondary-foreground: hsl(0, 0%, 85%);
+
+  /* Accent Colors */
+  --accent: hsl(220, 15%, 14%);
+  --accent-hover: hsl(220, 15%, 18%);
+  --accent-foreground: hsl(0, 0%, 90%);
+
+  /* Status Colors */
+  --success: hsl(142, 76%, 45%);
+  --success-foreground: hsl(220, 15%, 6%);
+  --warning: hsl(38, 92%, 60%);
+  --warning-foreground: hsl(220, 15%, 6%);
+  --destructive: hsl(0, 84%, 65%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+
+  /* Interactive Elements */
+  --ring: hsl(220, 90%, 65%);
+  --ring-offset: hsl(220, 15%, 6%);
+
+  /* Shadows for Dark Mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+
+  /* Gradients for Dark Mode */
+  --gradient-primary: linear-gradient(135deg, hsl(220, 90%, 65%) 0%, hsl(240, 90%, 70%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(220, 15%, 12%) 0%, hsl(220, 15%, 16%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(220, 90%, 15%) 0%, hsl(240, 90%, 18%) 100%);
+
+  /* Sidebar colors for dark mode */
+  --sidebar-background: hsl(220, 15%, 8%);
+  --sidebar-foreground: hsl(0, 0%, 98%);
+  --sidebar-primary: hsl(220, 90%, 65%);
+  --sidebar-primary-foreground: hsl(220, 15%, 6%);
+  --sidebar-accent: hsl(220, 15%, 14%);
+  --sidebar-accent-foreground: hsl(0, 0%, 90%);
+  --sidebar-border: hsl(220, 15%, 18%);
+  --sidebar-ring: hsl(220, 90%, 65%);
+
+  /* Chart colors for dark mode */
+  --chart-1: hsl(220, 90%, 65%);
+  --chart-2: hsl(210, 90%, 70%);
+  --chart-3: hsl(200, 90%, 70%);
+  --chart-4: hsl(230, 90%, 75%);
+  --chart-5: hsl(240, 90%, 80%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    color: #000000 !important;
+  }
+
+  /* Force all text to be black throughout the entire application */
+  *, *::before, *::after {
+    color: #000000 !important;
+  }
+
+  /* Force black text for all common elements */
+  div, span, p, h1, h2, h3, h4, h5, h6, a, li, ul, ol, td, th, label, input, textarea, select, option {
+    color: #000000 !important;
+  }
+
+  /* Force black text for all interactive elements */
+  button, [role="button"], [role="menuitem"], [role="option"], [role="tab"] {
+    color: #000000 !important;
+  }
+
+  /* Force black text for common classes */
+  .text-foreground, .text-muted-foreground, .text-card-foreground {
+    color: #000000 !important;
+  }
+
+  /* Exception for buttons and specific UI elements that need white text */
+  .text-white,
+  .text-primary-foreground,
+  .bg-primary *,
+  .btn-modern *,
+  .card-gradient *,
+  .fab *,
+  button.bg-primary,
+  .bg-gradient-primary * {
+    color: #ffffff !important;
+  }
+
+  /* Ensure placeholder text is visible */
+  ::placeholder {
+    color: #666666 !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure focus states are visible */
+  :focus, :focus-visible {
+    color: #000000 !important;
+  }
+
+  /* Force specific Tailwind text color classes to be black */
+  .text-foreground {
+    color: #000000 !important;
+  }
+
+  .text-muted-foreground {
+    color: #333333 !important;
+  }
+
+  .text-card-foreground {
+    color: #000000 !important;
+  }
+
+  .text-popover-foreground {
+    color: #000000 !important;
+  }
+
+  .text-secondary-foreground {
+    color: #000000 !important;
+  }
+
+  .text-accent-foreground {
+    color: #000000 !important;
+  }
+
+  /* Force all text in specific components to be black */
+  .inbox-container *,
+  .chat-container *,
+  .sidebar-container *,
+  .conversation-item *,
+  .message-item * {
+    color: #000000 !important;
+  }
+
+  /* Override any CSS variables that might be causing white text */
+  :root, .light, .dark, html, html.light, html.dark {
+    --foreground: 0 0% 0% !important;
+    --muted-foreground: 0 0% 20% !important;
+    --card-foreground: 0 0% 0% !important;
+    --popover-foreground: 0 0% 0% !important;
+    --secondary-foreground: 0 0% 0% !important;
+    --accent-foreground: 0 0% 0% !important;
+  }
+
+  /* Force light mode styles and override dark mode */
+  .dark *, .dark *::before, .dark *::after {
+    color: #000000 !important;
+  }
+
+  /* Override any theme-specific text colors */
+  .light *, .light *::before, .light *::after {
+    color: #000000 !important;
+  }
+
+  /* Force override for any remaining white text */
+  .white-text {
+    color: #000000 !important;
+  }
+
+  /* Override computed styles that might be white */
+  * {
+    color: #000000 !important;
+  }
+
+  /* Specific overrides for common UI elements */
+  span, div, p, h1, h2, h3, h4, h5, h6, a, button, input, textarea, select, label, li, td, th {
+    color: #000000 !important;
+  }
+
+  /* Ultra-specific overrides to ensure black text everywhere */
+  body *, body *::before, body *::after,
+  #root *, #root *::before, #root *::after,
+  .app *, .app *::before, .app *::after {
+    color: #000000 !important;
+  }
+
+  /* Force black text on all interactive elements */
+  button *, a * {
+    color: #000000 !important;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Modern Typography Scale */
+  h1 {
+    @apply text-4xl md:text-5xl font-bold tracking-tight;
+    line-height: 1.2;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl font-bold tracking-tight;
+    line-height: 1.3;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+    line-height: 1.4;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl font-semibold;
+    line-height: 1.4;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl font-medium;
+    line-height: 1.5;
+  }
+
+  h6 {
+    @apply text-base md:text-lg font-medium;
+    line-height: 1.5;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+    margin-bottom: 1rem;
+  }
+
+  /* Enhanced focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-opacity-50 ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  /* Modern Glass Effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Modern Card Styles */
+  .card-modern {
+    @apply bg-card border border-border rounded-xl shadow-lg hover:shadow-xl transition-all duration-300;
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--background-secondary)));
+  }
+
+  .card-gradient {
+    background: var(--gradient-primary);
+    @apply text-white border-0 shadow-xl;
+  }
+
+  /* Modern Button Styles */
+  .btn-modern {
+    @apply relative overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95;
+    background: var(--gradient-primary);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-modern:hover {
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  }
+
+  /* Modern Input Styles */
+  .input-modern {
+    @apply bg-background border-2 border-border rounded-lg px-4 py-3 transition-all duration-200;
+    @apply focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 focus:outline-none;
+  }
+
+  /* Animated Gradient Background */
+  .bg-animated {
+    background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  /* Modern Sidebar */
+  .sidebar-modern {
+    @apply bg-card border-r border-border backdrop-blur-sm;
+    background: linear-gradient(180deg, hsl(var(--card)), hsl(var(--background-secondary)));
+  }
+
+  /* Floating Action Button */
+  .fab {
+    @apply fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-xl hover:shadow-2xl;
+    @apply flex items-center justify-center transition-all duration-300 transform hover:scale-110;
+    background: var(--gradient-primary);
+    z-index: 50;
+  }
+}
+
+@layer utilities {
+  /* Modern Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out;
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+
+  /* Text Gradients */
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Modern Shadows */
+  .shadow-modern {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-modern-xl {
+    box-shadow: var(--shadow-xl);
+  }
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+}
