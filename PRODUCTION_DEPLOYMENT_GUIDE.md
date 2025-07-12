@@ -141,7 +141,7 @@ sudo nano /etc/nginx/sites-available/whatsapp-app
 ```nginx
 server {
     listen 80;
-    server_name your-server-ip-or-domain;
+    server_name 192.168.1.230;
 
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
@@ -269,7 +269,7 @@ npm run build
 pm2 restart whatsapp-app
 
 echo "✅ Deployment complete!"
-echo "🌐 Access your app at: http://your-server-ip"
+echo "🌐 Access your app at: http://192.168.1.230:3000"
 ```
 
 ## 🔧 Troubleshooting
@@ -303,10 +303,10 @@ echo "🌐 Access your app at: http://your-server-ip"
 ## 📱 Access Your Application
 
 After successful deployment:
-- **HTTP**: `http://your-server-ip`
+- **HTTP**: `http://192.168.1.230:3000`
 - **HTTPS**: `https://your-domain.com` (if SSL configured)
-- **WhatsApp Interface**: `http://your-server-ip/inbox`
-- **API**: `http://your-server-ip/api/*`
+- **WhatsApp Interface**: `http://192.168.1.230:3000/inbox`
+- **API**: `http://192.168.1.230:3000/api/*`
 
 ## 🔄 Auto-Deployment with GitHub Webhooks
 

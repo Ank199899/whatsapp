@@ -17,7 +17,7 @@ echo "=============================================="
 # Check if server details are provided
 if [ $# -eq 0 ]; then
     echo -e "${YELLOW}Usage: $0 <server-ip> [username]${NC}"
-    echo "Example: $0 192.168.29.147 admin1"
+    echo "Example: $0 192.168.1.230 admin1"
     exit 1
 fi
 
