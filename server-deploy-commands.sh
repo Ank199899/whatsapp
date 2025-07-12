@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Server Deployment Commands for WhatsApp Application
+# Run these commands on your Ubuntu server: 192.168.29.147
+
+echo "🚀 WhatsApp Application Server Deployment Guide"
+echo "================================================"
+
+echo ""
+echo "📋 Step 1: Connect to your server"
+echo "ssh admin1@192.168.29.147"
+
+echo ""
+echo "📋 Step 2: Download and run the deployment script"
+echo "curl -fsSL https://raw.githubusercontent.com/Ank199899/whatsapp/master/deploy-server.sh -o deploy-server.sh"
+echo "chmod +x deploy-server.sh"
+echo "sudo ./deploy-server.sh"
+
+echo ""
+echo "📋 Step 3: For future updates, use the quick deploy script"
+echo "curl -fsSL https://raw.githubusercontent.com/Ank199899/whatsapp/master/quick-deploy.sh -o quick-deploy.sh"
+echo "chmod +x quick-deploy.sh"
+echo "./quick-deploy.sh"
+
+echo ""
+echo "📋 Alternative: Manual deployment steps"
+echo "======================================="
+echo "1. sudo apt update && sudo apt upgrade -y"
+echo "2. curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -"
+echo "3. sudo apt-get install -y nodejs git build-essential"
+echo "4. sudo npm install -g pm2"
+echo "5. sudo mkdir -p /opt/whatsapp-marketing"
+echo "6. cd /opt/whatsapp-marketing"
+echo "7. sudo git clone https://github.com/Ank199899/whatsapp.git ."
+echo "8. sudo npm install"
+echo "9. sudo npm run build"
+echo "10. sudo pm2 start dist/index.js --name whatsapp-marketing"
+echo "11. sudo pm2 save"
+echo "12. sudo pm2 startup"
+
+echo ""
+echo "📋 Useful PM2 Commands"
+echo "====================="
+echo "pm2 status                    # Check application status"
+echo "pm2 logs whatsapp-marketing   # View application logs"
+echo "pm2 restart whatsapp-marketing # Restart application"
+echo "pm2 stop whatsapp-marketing   # Stop application"
+echo "pm2 monit                     # Monitor application"
+
+echo ""
+echo "📋 Access Your Application"
+echo "========================="
+echo "Direct access: http://192.168.29.147:3000"
+echo "If Nginx is configured: http://192.168.29.147"
+
+echo ""
+echo "📋 Important Configuration"
+echo "=========================="
+echo "1. Edit /opt/whatsapp-marketing/.env file with your database credentials"
+echo "2. Configure your Supabase settings if using Supabase"
+echo "3. Set up your database connection"
+echo "4. Configure WhatsApp API settings"
+
+echo ""
+echo "🔧 Troubleshooting"
+echo "=================="
+echo "If you encounter issues:"
+echo "1. Check logs: pm2 logs whatsapp-marketing"
+echo "2. Check status: pm2 status"
+echo "3. Restart: pm2 restart whatsapp-marketing"
+echo "4. Check Node.js version: node --version (should be v20.x)"
+echo "5. Check if port 3000 is available: sudo netstat -tlnp | grep :3000"
+
+echo ""
+echo "✅ Your WhatsApp application will be deployed and running!"

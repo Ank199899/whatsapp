@@ -565,7 +565,7 @@ async function startServer() {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5001", 10);
-  server.listen(port, "localhost", () => {
+  server.listen(port, "0.0.0.0", () => {
     console.log(`Server running on port ${port}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`Database: ${process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY ? 'Supabase Configured' : 'Supabase Not configured'}`);
