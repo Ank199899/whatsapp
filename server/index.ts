@@ -6,6 +6,7 @@ if (!process.env.NODE_ENV) {
 }
 
 import express, { type Request, Response, NextFunction } from "express";
+import path from "path";
 import { Server } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { registerRoutes } from "./routes";
@@ -536,6 +537,17 @@ async function initializeServices() {
   });
 
 })();
+
+// Example: Serve static files from ./dist/public and send index.html for all routes
+function setupStaticFileServing(app: express.Express) {
+  // ✅ Serve frontend static files
+  app.use(express.static(path.join(__dirname, "public")));
+
+  // ✅ Serve index.html for any other route
+  app.get("*", (_, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  });
+}
 
 // Setup Vite/static serving and start server immediately
 async function startServer() {
