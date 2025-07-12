@@ -24,8 +24,8 @@ pm2 save
 
 echo.
 echo ✅ WhatsApp server is now running with PM2!
-echo 🌐 Your server is available at: http://localhost:5000
-echo 📱 WhatsApp interface: http://localhost:5000/inbox
+echo 🌐 Your server is available at: http://localhost:3000
+echo 📱 WhatsApp interface: http://localhost:3000/inbox
 echo.
 echo PM2 Commands:
 echo   pm2 status          - Check server status

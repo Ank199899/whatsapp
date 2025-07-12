@@ -109,7 +109,7 @@ sudo -u whatsapp-user pm2 monit
 - **Password**: WhatsApp@2024!
 
 ### Application
-- **Port**: 5001
+- **Port**: 3000
 - **Environment**: production
 - **Process Manager**: PM2
 - **Web Server**: Nginx (reverse proxy)

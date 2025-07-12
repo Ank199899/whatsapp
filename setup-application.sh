@@ -52,7 +52,7 @@ DATABASE_URL=postgresql://whatsapp_user:WhatsApp@2024!@localhost:5432/whatsapp_m
 
 # Server Configuration
 NODE_ENV=production
-PORT=5001
+PORT=3000
 HOST=0.0.0.0
 
 # Session Configuration
@@ -104,11 +104,11 @@ module.exports = {
     exec_mode: 'fork',
     env: {
       NODE_ENV: 'production',
-      PORT: 5001
+      PORT: 3000
     },
     env_production: {
       NODE_ENV: 'production',
-      PORT: 5001
+      PORT: 3000
     },
     max_restarts: 10,
     min_uptime: '10s',
@@ -143,7 +143,7 @@ server {
     client_max_body_size 50M;
     
     location / {
-        proxy_pass http://localhost:5001;
+        proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -158,7 +158,7 @@ server {
     }
     
     location /socket.io/ {
-        proxy_pass http://localhost:5001;
+        proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -169,7 +169,7 @@ server {
     }
     
     location /api/ {
-        proxy_pass http://localhost:5001;
+        proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

@@ -1,7 +1,7 @@
 // Development configuration for full-stack application
 export const config = {
   // API Base URL - Development server
-  apiBaseUrl: process.env.NODE_ENV === 'development' ? '' : 'http://localhost:5000',
+  apiBaseUrl: process.env.NODE_ENV === 'development' ? '' : 'http://localhost:3000',
 
   // All features enabled in development mode
   features: {
@@ -39,7 +39,7 @@ export const config = {
 
     if (!isLocalDeployment && typeof window !== 'undefined') {
       console.warn('⚠️ This application is configured for local development.');
-      console.warn('🌐 Visit: http://localhost:5173 (dev) or http://localhost:5000 (prod)');
+      console.warn('🌐 Visit: http://localhost:5173 (dev) or http://localhost:3000 (prod)');
     }
 
     return true; // Always allow in development
