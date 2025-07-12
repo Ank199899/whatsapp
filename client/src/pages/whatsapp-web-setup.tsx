@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useSocket } from '@/hooks/useSocket';
 import Sidebar from '@/components/layout/sidebar';
 import Header from '@/components/layout/header';
-import SessionCleanup from '@/components/whatsapp/session-cleanup';
+// import SessionCleanup from '@/components/whatsapp/session-cleanup';
 import {
   QrCode,
   Smartphone,
@@ -353,9 +353,9 @@ export default function WhatsAppWebSetup() {
           <div className="container mx-auto space-y-6">
 
             {/* Session Cleanup Section */}
-            {showCleanup && (
+            {/* {showCleanup && (
               <SessionCleanup />
-            )}
+            )} */}
 
       {/* Active Sessions */}
       <Card>
