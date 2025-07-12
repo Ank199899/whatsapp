@@ -143,6 +143,7 @@ const InboxContent: React.FC = () => {
   const previousStatusRef = useRef<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Header visibility control
   const { setHeaderVisible } = useHeaderVisibility();

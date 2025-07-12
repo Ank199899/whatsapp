@@ -273,7 +273,7 @@ export function ResponsiveEmojiDemo() {
                 <div className="space-y-2">
                   <ResponsiveText size="sm" className="font-medium">😊 Emoji Testing:</ResponsiveText>
                   <ResponsiveText size="xs" className="text-muted-foreground">
-                    Type :) :D <3 lol and other emoticons in the chat
+                    Type :) :D &lt;3 lol and other emoticons in the chat
                   </ResponsiveText>
                 </div>
                 
