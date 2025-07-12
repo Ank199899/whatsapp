@@ -24,7 +24,7 @@ export function CuteAnimatedWidget({
   const themes = {
     robot: {
       frames: ['🤖', '🤖', '🤖', '🤖', '🤖'],
-      colors: 'from-blue-400 to-purple-500',
+      colors: 'from-green-400 to-emerald-500',
       label: 'AI Helper'
     },
     heart: {

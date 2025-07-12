@@ -543,16 +543,28 @@ async function startServer() {
   const whatsappService = await initializeServices();
 
   try {
-    // Skip Vite setup for now to avoid permission issues
-    serveStatic(app);
+    // Use Vite dev server in development, static files in production
+    if (process.env.NODE_ENV === 'development') {
+      const { setupVite } = await import('./vite');
+      await setupVite(app, server);
+      console.log('🔥 Vite dev server setup complete');
+    } else {
+      serveStatic(app);
+    }
   } catch (error) {
-    console.error('Error setting up static serving:', error);
+    console.error('Error setting up file serving:', error);
+    console.log('Falling back to static file serving...');
+    try {
+      serveStatic(app);
+    } catch (fallbackError) {
+      console.error('Fallback static serving also failed:', fallbackError);
+    }
   }
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
+  const port = parseInt(process.env.PORT || "5001", 10);
   server.listen(port, "localhost", () => {
     console.log(`Server running on port ${port}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);

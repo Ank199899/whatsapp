@@ -1,16 +1,16 @@
 import React from 'react';
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
-import AIAgentDashboard from '@/components/ai-agent/ai-agent-dashboard';
+import AdvancedAIDashboard from '@/components/ai-agent/advanced-ai-dashboard';
 
 export default function AIAgents() {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-auto">
-          <AIAgentDashboard />
+          <AdvancedAIDashboard />
         </main>
       </div>
     </div>

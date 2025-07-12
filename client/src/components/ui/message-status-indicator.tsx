@@ -14,44 +14,42 @@ export const MessageStatusIndicator: React.FC<MessageStatusIndicatorProps> = ({
       case 'sent':
         return (
           <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
             className={`inline-block ${className}`}
             fill="currentColor"
           >
             {/* Single tick for sent */}
-            <path d="M9.707 3.293a1 1 0 0 1 0 1.414L5.414 9a1 1 0 0 1-1.414 0L1.293 6.293a1 1 0 1 1 1.414-1.414L4.707 6.879 8.293 3.293a1 1 0 0 1 1.414 0z"/>
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
           </svg>
         );
 
       case 'delivered':
         return (
           <svg
-            width="16"
-            height="12"
-            viewBox="0 0 16 12"
+            width="18"
+            height="14"
+            viewBox="0 0 24 24"
             className={`inline-block ${className}`}
             fill="currentColor"
           >
             {/* Double tick for delivered - gray */}
-            <path d="M11.707 1.293a1 1 0 0 1 0 1.414L7.414 7a1 1 0 0 1-1.414 0L3.293 4.293a1 1 0 1 1 1.414-1.414L6.707 4.879l3.586-3.586a1 1 0 0 1 1.414 0z"/>
-            <path d="M15.707 1.293a1 1 0 0 1 0 1.414L11.414 7a1 1 0 0 1-1.414 0l-.5-.5a1 1 0 1 1 1.414-1.414l.293.293 3.586-3.586a1 1 0 0 1 1.414 0z"/>
+            <path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/>
           </svg>
         );
 
       case 'read':
         return (
           <svg
-            width="16"
-            height="12"
-            viewBox="0 0 16 12"
+            width="18"
+            height="14"
+            viewBox="0 0 24 24"
             className={`inline-block ${className}`}
-            fill="#3B82F6"
+            fill="#22c55e"
           >
-            {/* Double tick for read - blue */}
-            <path d="M11.707 1.293a1 1 0 0 1 0 1.414L7.414 7a1 1 0 0 1-1.414 0L3.293 4.293a1 1 0 1 1 1.414-1.414L6.707 4.879l3.586-3.586a1 1 0 0 1 1.414 0z"/>
-            <path d="M15.707 1.293a1 1 0 0 1 0 1.414L11.414 7a1 1 0 0 1-1.414 0l-.5-.5a1 1 0 1 1 1.414-1.414l.293.293 3.586-3.586a1 1 0 0 1 1.414 0z"/>
+            {/* Double tick for read - green */}
+            <path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/>
           </svg>
         );
 
@@ -63,18 +61,34 @@ export const MessageStatusIndicator: React.FC<MessageStatusIndicatorProps> = ({
   const getStatusColor = () => {
     switch (status) {
       case 'sent':
-        return 'text-blue-400';
+        return 'text-gray-400';
       case 'delivered':
-        return 'text-blue-500';
+        return 'text-gray-500';
       case 'read':
-        return ''; // Color is handled in the SVG for read status
+        return 'text-green-500'; // Green for read status
       default:
-        return 'text-blue-400';
+        return 'text-gray-400';
+    }
+  };
+
+  const getStatusTitle = () => {
+    switch (status) {
+      case 'sent':
+        return 'Sent';
+      case 'delivered':
+        return 'Delivered';
+      case 'read':
+        return 'Read';
+      default:
+        return 'Sent';
     }
   };
 
   return (
-    <span className={`text-xs ${getStatusColor()} ${className}`}>
+    <span
+      className={`text-xs ${getStatusColor()} ${className} transition-colors duration-200`}
+      title={getStatusTitle()}
+    >
       {getStatusIcon()}
     </span>
   );

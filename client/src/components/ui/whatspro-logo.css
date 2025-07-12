@@ -1,0 +1,420 @@
+/* WhatsPro Logo Animation Styles */
+
+.whatspro-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.whatspro-logo-container:hover {
+  transform: scale(1.05);
+}
+
+.whatspro-logo-svg {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+  transition: filter 0.3s ease;
+}
+
+.whatspro-logo-container:hover .whatspro-logo-svg {
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.2));
+}
+
+/* Background Circle Animation */
+.logo-background {
+  animation: backgroundPulse 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes backgroundPulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.02);
+    opacity: 0.95;
+  }
+}
+
+/* Chat Bubble Animation */
+.chat-bubble {
+  /* Path length: approximately 280 units */
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+  animation: drawChatBubble 2s ease-out 0.5s forwards;
+}
+
+@keyframes drawChatBubble {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Message Lines Animation */
+.message-line {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.line-1 {
+  /* Line length: 36 units */
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: 
+    drawLine 0.8s ease-out 1.5s forwards,
+    fadeInSlide 0.6s ease-out 1.5s forwards;
+}
+
+.line-2 {
+  /* Line length: 26 units */
+  stroke-dasharray: 26;
+  stroke-dashoffset: 26;
+  animation: 
+    drawLine 0.8s ease-out 1.8s forwards,
+    fadeInSlide 0.6s ease-out 1.8s forwards;
+}
+
+.line-3 {
+  /* Line length: 30 units */
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: 
+    drawLine 0.8s ease-out 2.1s forwards,
+    fadeInSlide 0.6s ease-out 2.1s forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeInSlide {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pro Badge Animation */
+.pro-badge {
+  /* Circle circumference: 2 * π * 12 ≈ 75.4 units */
+  stroke-dasharray: 75.4;
+  stroke-dashoffset: 75.4;
+  stroke: #ffd700;
+  stroke-width: 2;
+  animation: 
+    drawCircle 1s ease-out 2.5s forwards,
+    proBadgePulse 2s ease-in-out 3.5s infinite;
+  transform-origin: center;
+}
+
+@keyframes drawCircle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes proBadgePulse {
+  0%, 100% { 
+    transform: scale(1);
+  }
+  50% { 
+    transform: scale(1.1);
+  }
+}
+
+/* Pro Text Animation */
+.pro-text {
+  opacity: 0;
+  transform: scale(0.5);
+  animation: proTextAppear 0.5s ease-out 3s forwards;
+}
+
+@keyframes proTextAppear {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Notification Dots Animation */
+.notification-dot {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.dot-1 {
+  animation: 
+    dotAppear 0.4s ease-out 3.2s forwards,
+    dotPulse 1.5s ease-in-out 4s infinite;
+}
+
+.dot-2 {
+  animation: 
+    dotAppear 0.4s ease-out 3.4s forwards,
+    dotPulse 1.5s ease-in-out 4.2s infinite;
+}
+
+@keyframes dotAppear {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+/* Connection Lines Animation */
+.connection-line {
+  opacity: 0;
+}
+
+.conn-1 {
+  /* Path length: approximately 60 units */
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: 
+    drawConnection 1.5s ease-out 3.5s forwards,
+    connectionFlow 3s ease-in-out 5s infinite;
+}
+
+.conn-2 {
+  /* Path length: approximately 60 units */
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: 
+    drawConnection 1.5s ease-out 3.8s forwards,
+    connectionFlow 3s ease-in-out 5.3s infinite;
+}
+
+@keyframes drawConnection {
+  to {
+    stroke-dashoffset: 0;
+    opacity: 0.8;
+  }
+}
+
+@keyframes connectionFlow {
+  0%, 100% { 
+    opacity: 0.8;
+  }
+  50% { 
+    opacity: 0.4;
+  }
+}
+
+/* Logo Text Styles */
+.logo-text {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: textAppear 0.8s ease-out 4s forwards;
+}
+
+.whats-text {
+  font-size: 24px;
+  color: #25d366;
+  margin-right: 2px;
+}
+
+.pro-text-main {
+  font-size: 24px;
+  color: #ffd700;
+  position: relative;
+}
+
+.pro-text-main::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ffd700, #ffb347);
+  animation: underlineGrow 0.6s ease-out 4.5s forwards;
+}
+
+@keyframes textAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes underlineGrow {
+  to {
+    width: 100%;
+  }
+}
+
+/* Hover Effects */
+.whatspro-logo-container.animated:hover .message-line {
+  animation-duration: 0.3s;
+  animation-delay: 0s;
+}
+
+.whatspro-logo-container.animated:hover .pro-badge {
+  animation: proBadgePulse 0.5s ease-in-out infinite;
+}
+
+.whatspro-logo-container.animated:hover .notification-dot {
+  animation: dotPulse 0.8s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logo-text {
+    margin-top: 8px;
+  }
+  
+  .whats-text,
+  .pro-text-main {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .whats-text,
+  .pro-text-main {
+    font-size: 18px;
+  }
+}
+
+/* Loading State */
+.whatspro-logo-container.loading {
+  animation: logoLoading 2s ease-in-out infinite;
+}
+
+@keyframes logoLoading {
+  0%, 100% { 
+    transform: scale(1);
+  }
+  50% { 
+    transform: scale(1.05);
+  }
+}
+
+/* Advanced Glow Effects */
+.whatspro-logo-container.animated .chat-bubble {
+  filter: drop-shadow(0 0 8px rgba(37, 211, 102, 0.3));
+  animation:
+    drawChatBubble 2s ease-out 0.5s forwards,
+    chatGlow 3s ease-in-out 3s infinite;
+}
+
+@keyframes chatGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(37, 211, 102, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(37, 211, 102, 0.6));
+  }
+}
+
+.whatspro-logo-container.animated .pro-badge {
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.4));
+}
+
+/* Particle Effect */
+.whatspro-logo-container::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: radial-gradient(circle at 20% 30%, rgba(116, 185, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(255, 107, 122, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 50% 50%, rgba(37, 211, 102, 0.05) 0%, transparent 50%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleGlow 6s ease-in-out 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes particleGlow {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.8) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+/* Success Checkmark Animation */
+.whatspro-logo-container.success::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #25d366;
+  opacity: 0;
+  animation: successPop 0.6s ease-out forwards;
+}
+
+@keyframes successPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Typing Indicator Animation */
+.whatspro-logo-container.typing .message-line {
+  animation: typingDots 1.5s ease-in-out infinite;
+}
+
+@keyframes typingDots {
+  0%, 60%, 100% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .whatspro-logo-svg {
+    filter: drop-shadow(0 8px 16px rgba(255, 255, 255, 0.1));
+  }
+
+  .whatspro-logo-container:hover .whatspro-logo-svg {
+    filter: drop-shadow(0 12px 24px rgba(255, 255, 255, 0.15));
+  }
+
+  .whatspro-logo-container::before {
+    background: radial-gradient(circle at 20% 30%, rgba(116, 185, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 107, 122, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(37, 211, 102, 0.1) 0%, transparent 50%);
+  }
+}

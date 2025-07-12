@@ -1,0 +1,275 @@
+/* Auto-Adjusting Font System for WhatsApp Bulk Application */
+
+/* CSS Custom Properties for Dynamic Font Scaling */
+:root {
+  /* Base font sizes using clamp for responsive scaling */
+  --font-xs: clamp(0.65rem, 0.8vw + 0.4rem, 0.75rem);
+  --font-sm: clamp(0.75rem, 0.9vw + 0.5rem, 0.875rem);
+  --font-base: clamp(0.875rem, 1vw + 0.6rem, 1rem);
+  --font-lg: clamp(1rem, 1.2vw + 0.7rem, 1.125rem);
+  --font-xl: clamp(1.125rem, 1.4vw + 0.8rem, 1.25rem);
+  --font-2xl: clamp(1.25rem, 1.6vw + 0.9rem, 1.5rem);
+  --font-3xl: clamp(1.5rem, 2vw + 1rem, 1.875rem);
+  
+  /* Line heights that scale with font sizes */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* Zoom detection variables */
+  --zoom-level: 1;
+  --font-scale-factor: 1;
+  --spacing-scale-factor: 1;
+}
+
+/* Zoom Level Detection and Adjustment */
+@media screen and (min-resolution: 1.25dppx) and (max-resolution: 1.49dppx) {
+  :root {
+    --zoom-level: 1.25;
+    --font-scale-factor: 0.9;
+    --spacing-scale-factor: 0.95;
+  }
+}
+
+@media screen and (min-resolution: 1.5dppx) and (max-resolution: 1.99dppx) {
+  :root {
+    --zoom-level: 1.5;
+    --font-scale-factor: 0.85;
+    --spacing-scale-factor: 0.9;
+  }
+}
+
+@media screen and (min-resolution: 2dppx) {
+  :root {
+    --zoom-level: 2;
+    --font-scale-factor: 0.8;
+    --spacing-scale-factor: 0.85;
+  }
+}
+
+/* Base Auto-Font Classes */
+.auto-font-xs {
+  font-size: calc(var(--font-xs) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+}
+
+.auto-font-sm {
+  font-size: calc(var(--font-sm) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+}
+
+.auto-font-base {
+  font-size: calc(var(--font-base) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+}
+
+.auto-font-lg {
+  font-size: calc(var(--font-lg) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+}
+
+.auto-font-xl {
+  font-size: calc(var(--font-xl) * var(--font-scale-factor));
+  line-height: var(--line-height-tight);
+}
+
+.auto-font-2xl {
+  font-size: calc(var(--font-2xl) * var(--font-scale-factor));
+  line-height: var(--line-height-tight);
+}
+
+.auto-font-3xl {
+  font-size: calc(var(--font-3xl) * var(--font-scale-factor));
+  line-height: var(--line-height-tight);
+}
+
+/* Auto-Spacing Classes */
+.auto-spacing-xs {
+  padding: calc(0.25rem * var(--spacing-scale-factor));
+  margin: calc(0.125rem * var(--spacing-scale-factor));
+}
+
+.auto-spacing-sm {
+  padding: calc(0.5rem * var(--spacing-scale-factor));
+  margin: calc(0.25rem * var(--spacing-scale-factor));
+}
+
+.auto-spacing-base {
+  padding: calc(0.75rem * var(--spacing-scale-factor));
+  margin: calc(0.5rem * var(--spacing-scale-factor));
+}
+
+.auto-spacing-lg {
+  padding: calc(1rem * var(--spacing-scale-factor));
+  margin: calc(0.75rem * var(--spacing-scale-factor));
+}
+
+/* Application-Specific Auto-Font Classes */
+
+/* Sidebar Navigation */
+.sidebar-nav-item {
+  font-size: calc(var(--font-sm) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+  padding: calc(0.75rem * var(--spacing-scale-factor)) calc(1rem * var(--spacing-scale-factor));
+}
+
+/* WhatsApp Inbox */
+.inbox-contact-name {
+  font-size: calc(var(--font-base) * var(--font-scale-factor));
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+}
+
+.inbox-last-message {
+  font-size: calc(var(--font-sm) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+  opacity: 0.8;
+}
+
+.inbox-timestamp {
+  font-size: calc(var(--font-xs) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+  opacity: 0.6;
+}
+
+/* Chat Messages */
+.chat-message-content {
+  font-size: calc(var(--font-base) * var(--font-scale-factor));
+  line-height: var(--line-height-relaxed);
+  padding: calc(0.75rem * var(--spacing-scale-factor)) calc(1rem * var(--spacing-scale-factor));
+}
+
+.chat-message-timestamp {
+  font-size: calc(var(--font-xs) * var(--font-scale-factor));
+  line-height: var(--line-height-normal);
+  opacity: 0.7;
+}
+
+/* Buttons */
+.auto-button-sm {
+  font-size: calc(var(--font-sm) * var(--font-scale-factor));
+  padding: calc(0.5rem * var(--spacing-scale-factor)) calc(0.75rem * var(--spacing-scale-factor));
+}
+
+.auto-button-base {
+  font-size: calc(var(--font-base) * var(--font-scale-factor));
+  padding: calc(0.75rem * var(--spacing-scale-factor)) calc(1rem * var(--spacing-scale-factor));
+}
+
+.auto-button-lg {
+  font-size: calc(var(--font-lg) * var(--font-scale-factor));
+  padding: calc(1rem * var(--spacing-scale-factor)) calc(1.5rem * var(--spacing-scale-factor));
+}
+
+/* Form Elements */
+.auto-input {
+  font-size: calc(var(--font-base) * var(--font-scale-factor));
+  padding: calc(0.75rem * var(--spacing-scale-factor));
+  line-height: var(--line-height-normal);
+}
+
+.auto-label {
+  font-size: calc(var(--font-sm) * var(--font-scale-factor));
+  font-weight: 500;
+  line-height: var(--line-height-normal);
+}
+
+/* Headers */
+.auto-header-1 {
+  font-size: calc(var(--font-3xl) * var(--font-scale-factor));
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+}
+
+.auto-header-2 {
+  font-size: calc(var(--font-2xl) * var(--font-scale-factor));
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+}
+
+.auto-header-3 {
+  font-size: calc(var(--font-xl) * var(--font-scale-factor));
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+}
+
+.auto-header-4 {
+  font-size: calc(var(--font-lg) * var(--font-scale-factor));
+  font-weight: 600;
+  line-height: var(--line-height-normal);
+}
+
+/* Container Adjustments */
+.auto-container {
+  padding: calc(1rem * var(--spacing-scale-factor));
+  gap: calc(1rem * var(--spacing-scale-factor));
+}
+
+.auto-container-sm {
+  padding: calc(0.5rem * var(--spacing-scale-factor));
+  gap: calc(0.5rem * var(--spacing-scale-factor));
+}
+
+.auto-container-lg {
+  padding: calc(1.5rem * var(--spacing-scale-factor));
+  gap: calc(1.5rem * var(--spacing-scale-factor));
+}
+
+/* Responsive Breakpoint Adjustments */
+@media (max-width: 640px) {
+  :root {
+    --font-scale-factor: calc(var(--font-scale-factor) * 0.9);
+    --spacing-scale-factor: calc(var(--spacing-scale-factor) * 0.9);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-scale-factor: calc(var(--font-scale-factor) * 0.85);
+    --spacing-scale-factor: calc(var(--spacing-scale-factor) * 0.85);
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --font-scale-factor: calc(var(--font-scale-factor) * 1.05);
+    --spacing-scale-factor: calc(var(--spacing-scale-factor) * 1.05);
+  }
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --font-scale-factor: calc(var(--font-scale-factor) * 1.1);
+    --spacing-scale-factor: calc(var(--spacing-scale-factor) * 1.1);
+  }
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .auto-font-xs, .auto-font-sm, .auto-font-base, .auto-font-lg, .auto-font-xl, .auto-font-2xl, .auto-font-3xl {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Accessibility and Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  :root {
+    --font-scale-factor: 0.8;
+    --spacing-scale-factor: 0.7;
+  }
+  
+  .auto-font-xs, .auto-font-sm, .auto-font-base, .auto-font-lg, .auto-font-xl, .auto-font-2xl, .auto-font-3xl {
+    color: black !important;
+    background: white !important;
+  }
+}

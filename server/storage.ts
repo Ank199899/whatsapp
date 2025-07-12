@@ -69,7 +69,9 @@ export interface IStorage {
   getConversationById(id: number): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation & { userId: string }): Promise<Conversation>;
   updateConversation(id: number, updates: Partial<Conversation>, userId?: string): Promise<Conversation>;
+  updateConversationPin(id: number, isPinned: boolean, userId?: string): Promise<void>;
   deleteConversation(id: number, userId?: string): Promise<void>;
+  deleteAllChats(userId: string): Promise<{ deletedConversations: number, deletedMessages: number }>;
   
   // Messages
   getMessages(conversationId: number): Promise<Message[]>;

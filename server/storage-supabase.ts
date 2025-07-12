@@ -164,13 +164,61 @@ export class SupabaseStorage implements IStorage {
   }
 
   async deleteWhatsappNumber(id: number): Promise<void> {
-    const { error } = await supabase
-      .from('whatsapp_numbers')
-      .delete()
-      .eq('id', id);
+    console.log(`🗑️ Starting comprehensive deletion of WhatsApp number ${id}`);
 
-    if (error) {
-      console.error('Error deleting WhatsApp number:', error);
+    try {
+      // Step 1: Get all conversations for this WhatsApp number
+      const { data: conversations, error: convError } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('whatsapp_number_id', id);
+
+      if (convError) {
+        console.warn('Error fetching conversations for WhatsApp number:', convError);
+      } else if (conversations && conversations.length > 0) {
+        console.log(`🗑️ Found ${conversations.length} conversations to delete`);
+
+        // Step 2: Delete all messages for these conversations
+        for (const conv of conversations) {
+          const { error: msgError } = await supabase
+            .from('messages')
+            .delete()
+            .eq('conversation_id', conv.id);
+
+          if (msgError) {
+            console.warn(`Error deleting messages for conversation ${conv.id}:`, msgError);
+          } else {
+            console.log(`✅ Deleted messages for conversation ${conv.id}`);
+          }
+        }
+
+        // Step 3: Delete all conversations
+        const { error: deleteConvError } = await supabase
+          .from('conversations')
+          .delete()
+          .eq('whatsapp_number_id', id);
+
+        if (deleteConvError) {
+          console.warn('Error deleting conversations:', deleteConvError);
+        } else {
+          console.log(`✅ Deleted ${conversations.length} conversations`);
+        }
+      }
+
+      // Step 4: Delete the WhatsApp number itself
+      const { error } = await supabase
+        .from('whatsapp_numbers')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting WhatsApp number:', error);
+        throw error;
+      }
+
+      console.log(`✅ Successfully completed comprehensive deletion of WhatsApp number ${id}`);
+    } catch (error) {
+      console.error('Error in comprehensive WhatsApp number deletion:', error);
       throw error;
     }
   }
@@ -689,6 +737,19 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createConversation(conversation: InsertConversation & { userId: string }): Promise<Conversation> {
+    // Check if conversation already exists for this phone number
+    const normalizedPhone = this.normalizePhoneNumber(conversation.contactPhone);
+    const existingConversations = await this.getConversations(conversation.userId);
+
+    const existingConv = existingConversations.find(conv =>
+      this.normalizePhoneNumber(conv.contact_phone) === normalizedPhone
+    );
+
+    if (existingConv) {
+      console.log(`📞 Conversation already exists for ${normalizedPhone}, returning existing conversation ${existingConv.id}`);
+      return existingConv;
+    }
+
     const { data, error } = await supabase
       .from('conversations')
       .insert([{
@@ -696,7 +757,7 @@ export class SupabaseStorage implements IStorage {
         contact_id: conversation.contactId,
         whatsapp_number_id: conversation.whatsappNumberId,
         contact_name: conversation.contactName,
-        contact_phone: conversation.contactPhone,
+        contact_phone: normalizedPhone, // Store normalized phone number
         last_message: conversation.lastMessage,
         last_message_at: conversation.lastMessageAt,
         unread_count: conversation.unreadCount,
@@ -707,12 +768,13 @@ export class SupabaseStorage implements IStorage {
       }])
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error creating conversation:', error);
       throw error;
     }
-    
+
+    console.log(`✅ Created new conversation ${data.id} for ${normalizedPhone}`);
     return data as Conversation;
   }
 
@@ -740,31 +802,15 @@ export class SupabaseStorage implements IStorage {
     return data as Conversation;
   }
 
-  async deleteConversation(id: number, userId?: string): Promise<void> {
-    // First, get the conversation to verify ownership if userId is provided
-    if (userId) {
-      const { data: conversation, error: fetchError } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('id', id)
-        .eq('user_id', userId)
-        .single();
+  async updateConversationPin(id: number, isPinned: boolean, userId?: string): Promise<void> {
+    console.log(`📌 Updating conversation ${id} pin status to ${isPinned} for user ${userId}`);
 
-      if (fetchError || !conversation) {
-        throw new Error('Conversation not found or access denied');
-      }
-    }
-
-    // Delete all messages first
-    await supabase
-      .from('messages')
-      .delete()
-      .eq('conversation_id', id);
-
-    // Delete the conversation
     let query = supabase
       .from('conversations')
-      .delete()
+      .update({
+        is_pinned: isPinned,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', id);
 
     // Add user filter if userId is provided for security
@@ -775,7 +821,79 @@ export class SupabaseStorage implements IStorage {
     const { error } = await query;
 
     if (error) {
-      console.error('Error deleting conversation:', error);
+      console.error('Error updating conversation pin status:', error);
+      throw error;
+    }
+
+    console.log(`✅ Successfully ${isPinned ? 'pinned' : 'unpinned'} conversation ${id}`);
+  }
+
+  async deleteConversation(id: number, userId?: string): Promise<void> {
+    console.log(`🗑️ Starting comprehensive deletion of conversation ${id} for user ${userId}`);
+
+    try {
+      // First, get the conversation to verify ownership if userId is provided
+      if (userId) {
+        const { data: conversation, error: fetchError } = await supabase
+          .from('conversations')
+          .select('id, contact_id')
+          .eq('id', id)
+          .eq('user_id', userId)
+          .single();
+
+        if (fetchError || !conversation) {
+          throw new Error('Conversation not found or access denied');
+        }
+
+        console.log(`✅ Found conversation ${id} for user ${userId}`);
+      }
+
+      // Step 1: Get count of messages to delete
+      const { count: messageCount, error: countError } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('conversation_id', id);
+
+      if (countError) {
+        console.warn('Error counting messages:', countError);
+      } else {
+        console.log(`🗑️ Found ${messageCount || 0} messages to delete`);
+      }
+
+      // Step 2: Delete all messages first
+      const { error: msgError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', id);
+
+      if (msgError) {
+        console.error('Error deleting messages:', msgError);
+        throw msgError;
+      } else {
+        console.log(`✅ Deleted ${messageCount || 0} messages for conversation ${id}`);
+      }
+
+      // Step 3: Delete the conversation
+      let query = supabase
+        .from('conversations')
+        .delete()
+        .eq('id', id);
+
+      // Add user filter if userId is provided for security
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { error } = await query;
+
+      if (error) {
+        console.error('Error deleting conversation:', error);
+        throw error;
+      }
+
+      console.log(`✅ Successfully completed comprehensive deletion of conversation ${id}`);
+    } catch (error) {
+      console.error('Error in comprehensive conversation deletion:', error);
       throw error;
     }
   }
@@ -784,7 +902,7 @@ export class SupabaseStorage implements IStorage {
     return this.getConversations(userId);
   }
 
-  async cleanupDuplicateConversations(userId: string): Promise<{ removed: number }> {
+  async cleanupDuplicateConversations(userId: string): Promise<{ removed: number, messagesRemoved: number }> {
     try {
       // Get all conversations for the user
       const conversations = await this.getConversations(userId);
@@ -796,17 +914,17 @@ export class SupabaseStorage implements IStorage {
         const phone = conv.contact_phone;
         if (!phone) continue;
 
-        // Normalize phone number
-        const normalizedPhone = phone.replace(/\D/g, '');
-        const key = normalizedPhone.length === 10 ? '91' + normalizedPhone : normalizedPhone;
+        // Use the same normalization as phone-utils.ts
+        const normalizedPhone = this.normalizePhoneNumber(phone);
 
-        if (!phoneGroups.has(key)) {
-          phoneGroups.set(key, []);
+        if (!phoneGroups.has(normalizedPhone)) {
+          phoneGroups.set(normalizedPhone, []);
         }
-        phoneGroups.get(key)!.push(conv);
+        phoneGroups.get(normalizedPhone)!.push(conv);
       }
 
       let removedCount = 0;
+      let messagesRemovedCount = 0;
 
       // For each phone number group, keep only the most recent conversation
       for (const [phone, convs] of phoneGroups) {
@@ -818,16 +936,193 @@ export class SupabaseStorage implements IStorage {
           const toRemove = convs.slice(1);
 
           for (const conv of toRemove) {
+            // Count messages before deletion
+            const messages = await this.getMessages(conv.id);
+            messagesRemovedCount += messages.length;
+
             await this.deleteConversation(conv.id, userId);
             removedCount++;
-            console.log(`Removed duplicate conversation ${conv.id} for phone ${phone}`);
+            console.log(`🗑️ Removed duplicate conversation ${conv.id} for phone ${phone} (${messages.length} messages)`);
+          }
+        }
+      }
+
+      return { removed: removedCount, messagesRemoved: messagesRemovedCount };
+    } catch (error) {
+      console.error('Error cleaning up duplicate conversations:', error);
+      throw error;
+    }
+  }
+
+  // Helper function to normalize phone numbers consistently
+  private normalizePhoneNumber(phone: string): string {
+    if (!phone) return '';
+
+    // Remove all non-digit characters
+    const digits = phone.replace(/\D/g, '');
+
+    // Handle different Indian number formats
+    if (digits.length === 10) {
+      // 10 digits: assume Indian mobile number, add country code
+      return '91' + digits;
+    }
+
+    if (digits.length === 11 && digits.startsWith('0')) {
+      // 11 digits starting with 0: remove leading 0 and add country code
+      return '91' + digits.substring(1);
+    }
+
+    if (digits.length === 12 && digits.startsWith('91')) {
+      // 12 digits starting with 91: already in correct format
+      return digits;
+    }
+
+    if (digits.length === 13 && digits.startsWith('091')) {
+      // 13 digits starting with 091: remove leading 0
+      return digits.substring(1);
+    }
+
+    // If it's already 12 digits and starts with 91, keep as is
+    // Otherwise, try to extract the last 10 digits and add 91
+    if (digits.length > 10) {
+      const last10 = digits.slice(-10);
+      // Validate that it's a valid Indian mobile number (starts with 6,7,8,9)
+      if (['6', '7', '8', '9'].includes(last10[0])) {
+        return '91' + last10;
+      }
+    }
+
+    // If we can't normalize it properly, return the original digits
+    return digits;
+  }
+
+  // Clean up duplicate messages within conversations
+  async cleanupDuplicateMessages(userId: string): Promise<{ removed: number }> {
+    try {
+      const conversations = await this.getConversations(userId);
+      let removedCount = 0;
+
+      for (const conv of conversations) {
+        const messages = await this.getMessages(conv.id);
+
+        // Group messages by whatsapp_message_id and content
+        const messageGroups = new Map<string, any[]>();
+
+        for (const msg of messages) {
+          // Create a unique key based on whatsapp_message_id or content+timestamp
+          const key = msg.whatsapp_message_id ||
+                     `${msg.content}_${msg.timestamp}_${msg.direction}`;
+
+          if (!messageGroups.has(key)) {
+            messageGroups.set(key, []);
+          }
+          messageGroups.get(key)!.push(msg);
+        }
+
+        // Remove duplicates, keeping the first one
+        for (const [key, msgs] of messageGroups) {
+          if (msgs.length > 1) {
+            // Sort by created_at ascending (keep the first)
+            msgs.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+            // Remove all except the first
+            const toRemove = msgs.slice(1);
+
+            for (const msg of toRemove) {
+              const { error } = await supabase
+                .from('messages')
+                .delete()
+                .eq('id', msg.id);
+
+              if (!error) {
+                removedCount++;
+                console.log(`🗑️ Removed duplicate message ${msg.id} in conversation ${conv.id}`);
+              }
+            }
           }
         }
       }
 
       return { removed: removedCount };
     } catch (error) {
-      console.error('Error cleaning up duplicate conversations:', error);
+      console.error('Error cleaning up duplicate messages:', error);
+      throw error;
+    }
+  }
+
+  // Delete ALL chats and conversations for a user
+  async deleteAllChats(userId: string): Promise<{ deletedConversations: number, deletedMessages: number }> {
+    console.log(`🗑️ Starting comprehensive deletion of ALL chats for user: ${userId}`);
+
+    try {
+      // Step 1: Get all conversations for this user
+      const { data: conversations, error: convError } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('user_id', userId);
+
+      if (convError) {
+        console.error('Error fetching conversations for user:', convError);
+        throw convError;
+      }
+
+      if (!conversations || conversations.length === 0) {
+        console.log('📭 No conversations found for user');
+        return { deletedConversations: 0, deletedMessages: 0 };
+      }
+
+      console.log(`🗑️ Found ${conversations.length} conversations to delete`);
+
+      // Step 2: Count total messages before deletion
+      let totalMessages = 0;
+      for (const conv of conversations) {
+        const { count, error: countError } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('conversation_id', conv.id);
+
+        if (!countError && count) {
+          totalMessages += count;
+        }
+      }
+
+      console.log(`🗑️ Found ${totalMessages} total messages to delete`);
+
+      // Step 3: Delete all messages for all conversations
+      const conversationIds = conversations.map(conv => conv.id);
+      const { error: msgError } = await supabase
+        .from('messages')
+        .delete()
+        .in('conversation_id', conversationIds);
+
+      if (msgError) {
+        console.error('Error deleting messages:', msgError);
+        throw msgError;
+      }
+
+      console.log(`✅ Deleted ${totalMessages} messages`);
+
+      // Step 4: Delete all conversations
+      const { error: convDeleteError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('user_id', userId);
+
+      if (convDeleteError) {
+        console.error('Error deleting conversations:', convDeleteError);
+        throw convDeleteError;
+      }
+
+      console.log(`✅ Deleted ${conversations.length} conversations`);
+
+      console.log(`🎉 Successfully deleted ALL chats for user ${userId}: ${conversations.length} conversations, ${totalMessages} messages`);
+
+      return {
+        deletedConversations: conversations.length,
+        deletedMessages: totalMessages
+      };
+    } catch (error) {
+      console.error('Error in comprehensive chat deletion:', error);
       throw error;
     }
   }
@@ -850,6 +1145,36 @@ export class SupabaseStorage implements IStorage {
 
   async createMessage(message: InsertMessage): Promise<Message> {
     try {
+      // Check for duplicate messages first
+      if (message.whatsapp_message_id) {
+        const { data: existingMessage } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('conversation_id', message.conversation_id)
+          .eq('whatsapp_message_id', message.whatsapp_message_id)
+          .single();
+
+        if (existingMessage) {
+          console.log(`📨 Message already exists with whatsapp_message_id: ${message.whatsapp_message_id}`);
+          return existingMessage as Message;
+        }
+      }
+
+      // Also check for content-based duplicates (for messages without whatsapp_message_id)
+      const { data: contentDuplicate } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', message.conversation_id)
+        .eq('content', message.content)
+        .eq('direction', message.direction)
+        .eq('timestamp', message.timestamp)
+        .single();
+
+      if (contentDuplicate) {
+        console.log(`📨 Duplicate message found based on content and timestamp`);
+        return contentDuplicate as Message;
+      }
+
       const { data, error } = await supabase
         .from('messages')
         .insert([message])

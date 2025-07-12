@@ -86,9 +86,9 @@ const AnimatedBackground = React.forwardRef<HTMLDivElement, AnimatedBackgroundPr
     };
 
     const patternClasses = {
-      dots: "bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.15)_1px,transparent_0)] bg-[length:20px_20px]",
-      grid: "bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[length:20px_20px]",
-      waves: "bg-gradient-to-r from-blue-400/20 via-purple-500/20 to-pink-500/20",
+      dots: "bg-[radial-gradient(circle_at_1px_1px,rgba(34,197,94,0.15)_1px,transparent_0)] bg-[length:20px_20px]",
+      grid: "bg-[linear-gradient(rgba(34,197,94,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(34,197,94,0.1)_1px,transparent_1px)] bg-[length:20px_20px]",
+      waves: "bg-gradient-to-r from-green-400/20 via-yellow-500/20 to-emerald-500/20",
       gradient: "bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5"
     };
 

@@ -302,3 +302,44 @@
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+/* Sidebar Layout Auto-Adjustment */
+.sidebar-layout-container {
+  display: flex;
+  height: 100vh;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-container {
+  flex-shrink: 0;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.sidebar-container.collapsed {
+  width: 0 !important;
+}
+
+.main-content-area {
+  flex: 1;
+  transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0; /* Prevents flex item from overflowing */
+}
+
+/* Ensure smooth transitions for all layout changes */
+.layout-transition {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 1024px) {
+  .sidebar-container {
+    position: fixed !important;
+    z-index: 40;
+    width: 16rem !important; /* 64 * 0.25rem = 16rem */
+  }
+
+  .main-content-area {
+    margin-left: 0 !important;
+  }
+}

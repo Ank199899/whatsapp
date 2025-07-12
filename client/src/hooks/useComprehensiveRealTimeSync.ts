@@ -335,6 +335,11 @@ export function useComprehensiveRealTimeSync() {
 
     // Force refresh of all cached data
     queryClient.invalidateQueries();
+
+    // Trigger a complete re-render by invalidating all queries
+    setTimeout(() => {
+      queryClient.refetchQueries();
+    }, 100);
   });
 
   // Specific message refresh events
@@ -374,6 +379,34 @@ export function useComprehensiveRealTimeSync() {
   useSocketEvent('qr_code', (data) => {
     console.log('📱 Real-time: QR code received', data);
     refreshQuery(['/api/whatsapp/active-sessions']);
+  });
+
+  // WhatsApp number deleted event
+  useSocketEvent('whatsapp_number_deleted', (data) => {
+    console.log('🗑️ Real-time: WhatsApp number deleted', data);
+    refreshQuery(['/api/whatsapp/numbers']);
+    refreshQuery(['/api/whatsapp/conversations']);
+    refreshQuery(['/api/conversations']);
+    refreshAllData();
+  });
+
+  // Conversation deleted event
+  useSocketEvent('conversation_deleted', (data) => {
+    console.log('🗑️ Real-time: Conversation deleted', data);
+    refreshQuery(['/api/conversations']);
+    refreshQuery(['/api/whatsapp/conversations']);
+    refreshAllData();
+  });
+
+  // Message sent event
+  useSocketEvent('message_sent', (data) => {
+    console.log('📤 Real-time: Message sent', data);
+    if (data.conversationId) {
+      refreshQuery(['/api/messages', data.conversationId]);
+      refreshQuery(['/api/whatsapp/messages', data.conversationId]);
+    }
+    refreshQuery(['/api/conversations']);
+    refreshQuery(['/api/whatsapp/conversations']);
   });
 
   // Log socket connection status

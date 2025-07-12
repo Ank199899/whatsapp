@@ -72,12 +72,12 @@ export default function TemplateGrid({ templates, loading }: TemplateGridProps) 
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      promotional: "border-blue-300",
-      "follow-up": "border-blue-200",
-      newsletter: "border-blue-400",
-      events: "border-blue-500",
+      promotional: "border-green-300",
+      "follow-up": "border-green-200",
+      newsletter: "border-green-400",
+      events: "border-green-500",
     };
-    return colors[category] || "border-blue-100";
+    return colors[category] || "border-green-100";
   };
 
   if (loading) {

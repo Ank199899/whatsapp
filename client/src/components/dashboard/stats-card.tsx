@@ -7,7 +7,7 @@ interface StatsCardProps {
   value: number;
   suffix?: string;
   icon: LucideIcon;
-  color: 'blue' | 'lightBlue' | 'darkBlue' | 'primary' | 'secondary' | 'accent';
+  color: 'green' | 'lightGreen' | 'darkGreen' | 'primary' | 'secondary' | 'accent';
   trend?: {
     value?: number;
     label: string;
@@ -17,9 +17,9 @@ interface StatsCardProps {
 }
 
 const colorClasses = {
-  blue: 'bg-blue-100 text-blue-600',
-  lightBlue: 'bg-blue-50 text-blue-500',
-  darkBlue: 'bg-blue-200 text-blue-700',
+  green: 'bg-green-100 text-green-600',
+  lightGreen: 'bg-green-50 text-green-500',
+  darkGreen: 'bg-green-200 text-green-700',
   primary: 'bg-primary/10 text-primary',
   secondary: 'bg-secondary text-secondary-foreground',
   accent: 'bg-accent text-accent-foreground',

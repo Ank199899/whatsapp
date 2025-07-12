@@ -1,0 +1,258 @@
+/* Cute Avatar Animations */
+
+/* Main avatar bouncing animation */
+@keyframes cuteAvatarBounce {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg) scale(1); 
+  }
+  25% { 
+    transform: translateY(-2px) rotate(1deg) scale(1.05); 
+  }
+  50% { 
+    transform: translateY(-1px) rotate(0deg) scale(1.02); 
+  }
+  75% { 
+    transform: translateY(-3px) rotate(-1deg) scale(1.05); 
+  }
+}
+
+.cute-avatar-bounce {
+  animation: cuteAvatarBounce 3s ease-in-out infinite;
+}
+
+/* Cute eye blinking animation */
+@keyframes cuteEyeBlink {
+  0%, 85%, 100% { 
+    transform: scaleY(1); 
+    opacity: 1;
+  }
+  90%, 95% { 
+    transform: scaleY(0.1); 
+    opacity: 0.8;
+  }
+}
+
+.cute-eye-blink {
+  animation: cuteEyeBlink 4s infinite ease-in-out;
+}
+
+/* Earring swinging animation */
+@keyframes cuteEarringSwing {
+  0%, 100% { 
+    transform: rotate(0deg) translateY(0px); 
+  }
+  25% { 
+    transform: rotate(3deg) translateY(-1px); 
+  }
+  50% { 
+    transform: rotate(0deg) translateY(0px); 
+  }
+  75% { 
+    transform: rotate(-3deg) translateY(-1px); 
+  }
+}
+
+.cute-earring-swing {
+  animation: cuteEarringSwing 2s ease-in-out infinite;
+}
+
+/* Hair shimmer effect */
+@keyframes cuteHairShimmer {
+  0%, 100% { 
+    opacity: 0.7; 
+    filter: brightness(1);
+  }
+  50% { 
+    opacity: 1; 
+    filter: brightness(1.2);
+  }
+}
+
+.cute-hair-shimmer {
+  animation: cuteHairShimmer 3s ease-in-out infinite;
+}
+
+/* Blush pulsing animation */
+@keyframes cuteBlushPulse {
+  0%, 100% { 
+    opacity: 0.6; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.1);
+  }
+}
+
+.cute-blush-pulse {
+  animation: cuteBlushPulse 2s ease-in-out infinite;
+}
+
+/* Smile animation */
+@keyframes cuteSmileGlow {
+  0%, 100% { 
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  50% { 
+    filter: brightness(1.3);
+    transform: scale(1.05);
+  }
+}
+
+.cute-smile-glow {
+  animation: cuteSmileGlow 4s ease-in-out infinite;
+}
+
+/* Hover effects */
+.cute-avatar-bounce:hover {
+  animation: cuteAvatarBounce 1.5s ease-in-out infinite;
+}
+
+.cute-avatar-bounce:hover .cute-eye-blink {
+  animation: cuteEyeBlink 2s infinite ease-in-out;
+}
+
+.cute-avatar-bounce:hover .cute-earring-swing {
+  animation: cuteEarringSwing 1s ease-in-out infinite;
+}
+
+/* Floating sparkles effect */
+@keyframes cuteSparkle {
+  0% { 
+    opacity: 0; 
+    transform: translateY(0px) scale(0);
+  }
+  50% { 
+    opacity: 1; 
+    transform: translateY(-10px) scale(1);
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-20px) scale(0);
+  }
+}
+
+.cute-sparkle {
+  animation: cuteSparkle 2s ease-in-out infinite;
+}
+
+/* Delayed sparkles */
+.cute-sparkle-delay-1 {
+  animation: cuteSparkle 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.cute-sparkle-delay-2 {
+  animation: cuteSparkle 2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+/* Heart floating effect */
+@keyframes cuteHeartFloat {
+  0% { 
+    opacity: 0; 
+    transform: translateY(0px) scale(0) rotate(0deg);
+  }
+  25% { 
+    opacity: 1; 
+    transform: translateY(-5px) scale(1) rotate(5deg);
+  }
+  50% { 
+    opacity: 1; 
+    transform: translateY(-10px) scale(1.2) rotate(-5deg);
+  }
+  75% { 
+    opacity: 0.5; 
+    transform: translateY(-15px) scale(0.8) rotate(5deg);
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateY(-20px) scale(0) rotate(0deg);
+  }
+}
+
+.cute-heart-float {
+  animation: cuteHeartFloat 3s ease-in-out infinite;
+}
+
+/* Gender-specific enhancements */
+.cute-female-avatar {
+  filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.3));
+}
+
+.cute-male-avatar {
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
+}
+
+/* Size-specific adjustments */
+.cute-avatar-sm {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.cute-avatar-md {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.cute-avatar-lg {
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
+}
+
+.cute-avatar-xl {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.25));
+}
+
+/* Interactive states */
+.cute-avatar-bounce:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease-in-out;
+}
+
+.cute-avatar-bounce:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .cute-avatar-bounce,
+  .cute-eye-blink,
+  .cute-earring-swing,
+  .cute-hair-shimmer,
+  .cute-blush-pulse,
+  .cute-smile-glow,
+  .cute-sparkle,
+  .cute-heart-float {
+    animation: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .cute-female-avatar {
+    filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.5));
+  }
+  
+  .cute-male-avatar {
+    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cute-avatar-bounce {
+    animation-duration: 4s;
+  }
+  
+  .cute-eye-blink {
+    animation-duration: 5s;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .cute-avatar-bounce {
+    filter: contrast(1.5);
+  }
+}

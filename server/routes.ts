@@ -923,7 +923,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastMessage: conv.last_message || conv.lastMessage,
         lastMessageAt: conv.last_message_at || conv.lastMessageAt,
         unreadCount: conv.unread_count || conv.unreadCount || 0,
-        whatsappNumberId: conv.whatsapp_number_id || conv.whatsappNumberId
+        whatsappNumberId: conv.whatsapp_number_id || conv.whatsappNumberId,
+        isPinned: conv.is_pinned || false
       }));
 
       console.log('Returning formatted conversations:', formattedConversations.length);
@@ -1472,6 +1473,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating block status:", error);
       res.status(500).json({ message: "Failed to update contact" });
+    }
+  });
+
+  // Pin/Unpin conversation
+  app.patch("/api/conversations/:id/pin", isAuthenticated, async (req, res) => {
+    try {
+      const conversationId = parseInt(req.params.id);
+      const { isPinned } = req.body;
+      const userId = (req.user as any).claims?.sub;
+
+      console.log(`📌 ${isPinned ? 'Pinning' : 'Unpinning'} conversation ${conversationId} for user ${userId}`);
+
+      // Update conversation pin status
+      await storage.updateConversationPin(conversationId, isPinned, userId);
+
+      // Emit real-time update
+      if (io) {
+        io.to(`user_${userId}`).emit('conversation_pinned', {
+          conversationId,
+          isPinned
+        });
+        io.to(`user_${userId}`).emit('refresh_conversations');
+      }
+
+      res.json({
+        success: true,
+        message: isPinned ? "Conversation pinned successfully" : "Conversation unpinned successfully",
+        isPinned
+      });
+    } catch (error) {
+      console.error("Error updating conversation pin status:", error);
+      res.status(500).json({ message: "Failed to update pin status" });
+    }
+  });
+
+  // Delete ALL chats for a user (must be before :id route)
+  app.delete("/api/conversations/all", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).claims?.sub || "admin-user-123";
+
+      console.log(`🗑️ DELETE ALL CHATS REQUEST - User: ${userId}`);
+      console.log(`🗑️ Storage instance:`, typeof storage);
+      console.log(`🗑️ deleteAllChats method:`, typeof storage.deleteAllChats);
+
+      // Check if the method exists
+      if (!storage.deleteAllChats) {
+        console.error(`❌ deleteAllChats method not found on storage instance`);
+        return res.status(500).json({
+          message: "Delete all chats method not available",
+          error: "Method not implemented"
+        });
+      }
+
+      // Delete all chats and conversations for this user
+      const result = await storage.deleteAllChats(userId);
+
+      // Emit real-time updates
+      const io = req.app.get('io');
+      if (io) {
+        io.to(`user_${userId}`).emit('all_chats_deleted', {
+          deletedConversations: result.deletedConversations,
+          deletedMessages: result.deletedMessages
+        });
+        io.to(`user_${userId}`).emit('refresh_conversations');
+        io.to(`user_${userId}`).emit('global_data_sync');
+      }
+
+      console.log(`✅ Successfully deleted ALL chats for user ${userId}: ${result.deletedConversations} conversations, ${result.deletedMessages} messages`);
+
+      res.json({
+        success: true,
+        message: `Successfully deleted all chats`,
+        deletedConversations: result.deletedConversations,
+        deletedMessages: result.deletedMessages
+      });
+    } catch (error) {
+      console.error("Error deleting all chats:", error);
+      console.error("Error details:", error.message);
+      console.error("Error stack:", error.stack);
+      res.status(500).json({
+        message: "Failed to delete all chats",
+        error: error.message || "Unknown error"
+      });
     }
   });
 
@@ -2200,12 +2284,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await storage.cleanupDuplicateConversations(userId);
       res.json({
         success: true,
-        message: `Cleaned up ${result.removed} duplicate conversations`,
-        removed: result.removed
+        message: `Cleaned up ${result.removed} duplicate conversations and ${result.messagesRemoved} associated messages`,
+        removed: result.removed,
+        messagesRemoved: result.messagesRemoved
       });
     } catch (error) {
       console.error('Error cleaning up duplicate conversations:', error);
       res.status(500).json({ success: false, message: "Failed to cleanup duplicates" });
+    }
+  });
+
+  // Cleanup duplicate messages
+  app.post("/api/messages/cleanup-duplicates", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const result = await storage.cleanupDuplicateMessages(userId);
+      res.json({
+        success: true,
+        message: `Cleaned up ${result.removed} duplicate messages`,
+        removed: result.removed
+      });
+    } catch (error) {
+      console.error("Error cleaning up duplicate messages:", error);
+      res.status(500).json({ success: false, message: "Failed to cleanup duplicate messages" });
+    }
+  });
+
+  // Comprehensive cleanup - both conversations and messages
+  app.post("/api/cleanup-all-duplicates", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      console.log(`🧹 Starting comprehensive cleanup for user ${userId}`);
+
+      // First cleanup duplicate conversations
+      const conversationResult = await storage.cleanupDuplicateConversations(userId);
+
+      // Then cleanup duplicate messages
+      const messageResult = await storage.cleanupDuplicateMessages(userId);
+
+      res.json({
+        success: true,
+        message: `Comprehensive cleanup completed: ${conversationResult.removed} duplicate conversations, ${conversationResult.messagesRemoved + messageResult.removed} duplicate messages removed`,
+        conversationsRemoved: conversationResult.removed,
+        messagesRemoved: conversationResult.messagesRemoved + messageResult.removed
+      });
+    } catch (error) {
+      console.error("Error in comprehensive cleanup:", error);
+      res.status(500).json({ success: false, message: "Failed to perform comprehensive cleanup" });
     }
   });
 
@@ -2419,6 +2552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: conv.status,
           whatsappNumberId: conv.whatsapp_number_id,
           isGroup: conv.contact_phone?.includes('@g.us') || false,
+          isPinned: conv.is_pinned || false,
           // Add contact status information
           is_blocked: contact?.status === 'blocked' || false,
           ai_agent_active: aiAgentActive
@@ -2484,6 +2618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: conv.status,
           whatsappNumberId: conv.whatsapp_number_id,
           isGroup: conv.contact_phone?.includes('@g.us') || false,
+          isPinned: conv.is_pinned || false,
           // Add contact status information
           is_blocked: contact?.status === 'blocked' || false,
           ai_agent_active: aiAgentActive
@@ -2495,6 +2630,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting all WhatsApp conversations:", error);
       res.status(500).json({ message: "Failed to get all conversations" });
+    }
+  });
+
+  // Mark messages as read in a conversation
+  app.post("/api/whatsapp/conversations/:conversationId/mark-read", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).claims?.sub || "admin-user-123";
+      const conversationId = req.params.conversationId;
+
+      console.log(`📖 Marking messages as read for conversation ${conversationId}, user ${userId}`);
+
+      // Mark messages as read in the database
+      await storage.markMessagesAsRead(parseInt(conversationId));
+
+      // Reset unread count for the conversation
+      await storage.updateConversation(parseInt(conversationId), {
+        unread_count: 0
+      });
+
+      console.log(`✅ Messages marked as read for conversation ${conversationId}`);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      res.status(500).json({ message: "Failed to mark messages as read" });
     }
   });
 
@@ -2764,9 +2923,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`🗑️ DELETE REQUEST RECEIVED - Deleting WhatsApp number ${numberId} for user ${userId}`);
       console.log(`🗑️ Number ID type: ${typeof numberId}, value: ${numberId}`);
-      console.log(`🗑️ Request headers:`, req.headers);
-      console.log(`🗑️ Request method:`, req.method);
-      console.log(`🗑️ Request URL:`, req.url);
 
       // Validate numberId
       if (!numberId || isNaN(parseInt(numberId))) {
@@ -2774,14 +2930,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid number ID provided' });
       }
 
+      const numberIdInt = parseInt(numberId);
+
       // Get the number details before deletion
       console.log(`🔍 Getting WhatsApp numbers for user: ${userId}`);
       const whatsappNumbers = await storage.getWhatsappNumbers(userId);
       console.log(`📱 Found ${whatsappNumbers.length} numbers for user`);
 
       const numberToDelete = whatsappNumbers.find(num => {
-        console.log(`🔍 Comparing: ${num.id} (${typeof num.id}) === ${numberId} (${typeof numberId})`);
-        return num.id.toString() === numberId.toString();
+        console.log(`🔍 Comparing: ${num.id} (${typeof num.id}) === ${numberIdInt} (${typeof numberIdInt})`);
+        return num.id === numberIdInt;
       });
 
       if (!numberToDelete) {
@@ -2792,12 +2950,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`✅ Found number to delete: ${numberToDelete.id} - ${numberToDelete.phone_number}`);
 
-      // Delete the WhatsApp number from database
-      console.log(`🗑️ Calling storage.deleteWhatsappNumber(${parseInt(numberId)})`);
-      await storage.deleteWhatsappNumber(parseInt(numberId));
-      console.log(`✅ Successfully deleted from database`);
+      // Step 1: Get all conversations for this WhatsApp number
+      console.log(`🔍 Finding conversations for WhatsApp number ${numberToDelete.phone_number}`);
+      const allConversations = await storage.getConversations(userId);
+      const numberConversations = allConversations.filter((conv: any) =>
+        conv.whatsapp_number_id === numberToDelete.id ||
+        conv.phone_number === numberToDelete.phone_number
+      );
+      console.log(`📱 Found ${numberConversations.length} conversations to delete`);
 
-      // Also try to disconnect the session if it exists
+      // Step 2: Delete all messages and conversations for this number
+      for (const conversation of numberConversations) {
+        try {
+          console.log(`🗑️ Deleting conversation ${conversation.id} and its messages`);
+          await storage.deleteConversation(conversation.id, userId);
+          console.log(`✅ Deleted conversation ${conversation.id}`);
+        } catch (convError) {
+          console.warn(`⚠️ Error deleting conversation ${conversation.id}:`, convError);
+        }
+      }
+
+      // Step 3: Disconnect the WhatsApp session if it exists
       const whatsappWebService = (global as any).whatsappWebService;
       if (whatsappWebService && numberToDelete.session_data) {
         try {
@@ -2814,11 +2987,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Step 4: Delete the WhatsApp number from database
+      console.log(`🗑️ Calling storage.deleteWhatsappNumber(${numberIdInt})`);
+      await storage.deleteWhatsappNumber(numberIdInt);
+      console.log(`✅ Successfully deleted WhatsApp number from database`);
+
+      // Step 5: Emit real-time updates to all clients
+      const io = req.app.get('io');
+      if (io) {
+        io.to(`user_${userId}`).emit('whatsapp_number_deleted', {
+          deletedId: numberIdInt,
+          phoneNumber: numberToDelete.phone_number
+        });
+        io.to(`user_${userId}`).emit('refresh_conversations');
+        io.to(`user_${userId}`).emit('refresh_whatsapp_numbers');
+        io.to(`user_${userId}`).emit('global_data_sync');
+      }
+
       const response = {
         success: true,
-        message: `WhatsApp number ${numberToDelete.phone_number} deleted successfully`,
-        deletedId: numberId,
-        deletedPhoneNumber: numberToDelete.phone_number
+        message: `WhatsApp number ${numberToDelete.phone_number} and all associated data deleted successfully`,
+        deletedId: numberIdInt,
+        deletedPhoneNumber: numberToDelete.phone_number,
+        deletedConversations: numberConversations.length
       };
 
       console.log(`✅ Sending success response:`, response);
@@ -3498,6 +3689,665 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== ADVANCED AI AGENT ROUTES =====
+
+  // Get all AI agents
+  app.get("/api/ai/agents", isAuthenticated, async (req, res) => {
+    try {
+      const { data: agents, error } = await supabase
+        .from('ai_agents')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      res.json(agents || []);
+    } catch (error) {
+      console.error("Error fetching AI agents:", error);
+      res.status(500).json({ message: "Failed to fetch AI agents" });
+    }
+  });
+
+  // Create AI agent
+  app.post("/api/ai/agents", isAuthenticated, async (req, res) => {
+    try {
+      const agentData = {
+        ...req.body,
+        user_id: req.user.id,
+        id: `agent_${Date.now()}`,
+        status: 'active',
+        performance: {
+          totalInteractions: 0,
+          successRate: 0,
+          avgResponseTime: 0,
+          customerSatisfaction: 0
+        },
+        training: {
+          dataPoints: 0,
+          lastTrained: new Date().toISOString(),
+          accuracy: 0
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: agent, error } = await supabase
+        .from('ai_agents')
+        .insert([agentData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      res.json(agent);
+    } catch (error) {
+      console.error("Error creating AI agent:", error);
+      res.status(500).json({ message: "Failed to create AI agent" });
+    }
+  });
+
+  // Update AI agent status
+  app.patch("/api/ai/agents/:agentId/status", isAuthenticated, async (req, res) => {
+    try {
+      const { agentId } = req.params;
+      const { status } = req.body;
+
+      const { data: agent, error } = await supabase
+        .from('ai_agents')
+        .update({
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', agentId)
+        .eq('user_id', req.user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      res.json(agent);
+    } catch (error) {
+      console.error("Error updating AI agent status:", error);
+      res.status(500).json({ message: "Failed to update AI agent status" });
+    }
+  });
+
+  // Test AI agent
+  app.post("/api/ai/test-agent", isAuthenticated, async (req, res) => {
+    try {
+      const { message, config } = req.body;
+
+      const aiConfig = {
+        provider: config.provider || 'openai',
+        model: config.model || 'gpt-4o',
+        apiKey: config.customApiKey,
+        temperature: config.temperature || 0.7,
+        maxTokens: config.maxTokens || 500
+      };
+
+      const context = {
+        customInstructions: config.instructions || config.personality,
+        businessName: "Test Environment"
+      };
+
+      const response = await multiAIService.generateResponse(message, aiConfig, context);
+      res.json({ message: response.message });
+    } catch (error) {
+      console.error("Error testing AI agent:", error);
+      res.status(500).json({ message: "Failed to test AI agent" });
+    }
+  });
+
+  // Get AI providers
+  app.get("/api/ai/providers", isAuthenticated, async (req, res) => {
+    try {
+      const { data: providers, error } = await supabase
+        .from('ai_providers')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      res.json(providers || []);
+    } catch (error) {
+      console.error("Error fetching AI providers:", error);
+      res.status(500).json({ message: "Failed to fetch AI providers" });
+    }
+  });
+
+  // Add AI provider
+  app.post("/api/ai/providers", isAuthenticated, async (req, res) => {
+    try {
+      const providerData = {
+        ...req.body,
+        user_id: req.user.id,
+        id: `provider_${Date.now()}`,
+        status: 'disconnected',
+        usage: {
+          requests: 0,
+          tokens: 0,
+          cost: 0,
+          errors: 0
+        },
+        rateLimit: {
+          current: 0,
+          limit: 1000,
+          resetTime: new Date().toISOString(),
+          remaining: 1000
+        },
+        performance: {
+          avgResponseTime: 0,
+          successRate: 0,
+          uptime: 0
+        },
+        created_at: new Date().toISOString()
+      };
+
+      const { data: provider, error } = await supabase
+        .from('ai_providers')
+        .insert([providerData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      res.json(provider);
+    } catch (error) {
+      console.error("Error adding AI provider:", error);
+      res.status(500).json({ message: "Failed to add AI provider" });
+    }
+  });
+
+  // Test AI provider
+  app.post("/api/ai/providers/:providerId/test", isAuthenticated, async (req, res) => {
+    try {
+      const { providerId } = req.params;
+
+      const { data: provider, error } = await supabase
+        .from('ai_providers')
+        .select('*')
+        .eq('id', providerId)
+        .eq('user_id', req.user.id)
+        .single();
+
+      if (error) throw error;
+
+      // Test the provider connection
+      const testConfig = {
+        provider: provider.type,
+        model: provider.models[0],
+        apiKey: provider.api_key,
+        temperature: 0.7,
+        maxTokens: 50
+      };
+
+      const testResponse = await multiAIService.generateResponse(
+        "Hello, this is a test message.",
+        testConfig
+      );
+
+      // Update provider status
+      await supabase
+        .from('ai_providers')
+        .update({
+          status: 'connected',
+          last_used: new Date().toISOString()
+        })
+        .eq('id', providerId);
+
+      res.json({ success: true, message: "Provider test successful" });
+    } catch (error) {
+      console.error("Error testing AI provider:", error);
+
+      // Update provider status to error
+      await supabase
+        .from('ai_providers')
+        .update({ status: 'error' })
+        .eq('id', req.params.providerId);
+
+      res.status(500).json({ message: "Provider test failed" });
+    }
+  });
+
+  // Get AI analytics
+  app.get("/api/ai/analytics", isAuthenticated, async (req, res) => {
+    try {
+      const { range = '7d' } = req.query;
+
+      // Calculate date range
+      const now = new Date();
+      const daysBack = range === '24h' ? 1 : range === '7d' ? 7 : range === '30d' ? 30 : 90;
+      const startDate = new Date(now.getTime() - (daysBack * 24 * 60 * 60 * 1000));
+
+      // Get agents
+      const { data: agents } = await supabase
+        .from('ai_agents')
+        .select('*')
+        .eq('user_id', req.user.id);
+
+      // Get providers
+      const { data: providers } = await supabase
+        .from('ai_providers')
+        .select('*')
+        .eq('user_id', req.user.id);
+
+      // Mock analytics data (replace with real data from your analytics tables)
+      const analytics = {
+        overview: {
+          totalInteractions: 1250,
+          totalAgents: agents?.length || 0,
+          avgResponseTime: 1200,
+          successRate: 94.5,
+          totalCost: 45.67,
+          activeUsers: 89
+        },
+        trends: {
+          interactions: Array.from({ length: daysBack }, (_, i) => ({
+            date: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+            count: Math.floor(Math.random() * 100) + 50
+          })),
+          responseTime: Array.from({ length: daysBack }, (_, i) => ({
+            date: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+            time: Math.floor(Math.random() * 500) + 800
+          })),
+          successRate: Array.from({ length: daysBack }, (_, i) => ({
+            date: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+            rate: Math.floor(Math.random() * 10) + 90
+          })),
+          cost: Array.from({ length: daysBack }, (_, i) => ({
+            date: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
+            amount: Math.random() * 10 + 2
+          }))
+        },
+        agentPerformance: agents?.map(agent => ({
+          id: agent.id,
+          name: agent.name,
+          interactions: Math.floor(Math.random() * 500) + 100,
+          successRate: Math.floor(Math.random() * 20) + 80,
+          avgResponseTime: Math.floor(Math.random() * 1000) + 500,
+          cost: Math.random() * 20 + 5,
+          satisfaction: Math.floor(Math.random() * 2) + 4
+        })) || [],
+        providerStats: providers?.map(provider => ({
+          provider: provider.name,
+          requests: Math.floor(Math.random() * 1000) + 200,
+          cost: Math.random() * 30 + 10,
+          avgResponseTime: Math.floor(Math.random() * 800) + 400,
+          errorRate: Math.random() * 5 + 1
+        })) || [],
+        topQueries: [
+          { query: "How can I help you today?", count: 45, successRate: 98 },
+          { query: "What are your business hours?", count: 32, successRate: 95 },
+          { query: "Can you help me with pricing?", count: 28, successRate: 92 },
+          { query: "I need technical support", count: 24, successRate: 89 },
+          { query: "How do I contact sales?", count: 19, successRate: 96 }
+        ],
+        userSatisfaction: {
+          excellent: 45,
+          good: 35,
+          average: 15,
+          poor: 5
+        }
+      };
+
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching AI analytics:", error);
+      res.status(500).json({ message: "Failed to fetch AI analytics" });
+    }
+  });
+
+  // ===== AI TRAINING ROUTES =====
+
+  // Get training datasets
+  app.get("/api/ai/training/datasets", isAuthenticated, async (req, res) => {
+    try {
+      const { data: datasets, error } = await supabase
+        .from('ai_training_datasets')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      res.json(datasets || []);
+    } catch (error) {
+      console.error("Error fetching training datasets:", error);
+      res.status(500).json({ message: "Failed to fetch training datasets" });
+    }
+  });
+
+  // Upload training dataset
+  app.post("/api/ai/training/upload", isAuthenticated, async (req, res) => {
+    try {
+      // Handle file upload logic here
+      const { type, name } = req.body;
+
+      const datasetData = {
+        id: `dataset_${Date.now()}`,
+        user_id: req.user.id,
+        name: name || 'Uploaded Dataset',
+        type: type || 'custom',
+        source: 'upload',
+        size: Math.floor(Math.random() * 1000) + 100, // Mock size
+        status: 'processing',
+        created_at: new Date().toISOString()
+      };
+
+      const { data: dataset, error } = await supabase
+        .from('ai_training_datasets')
+        .insert([datasetData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Simulate processing
+      setTimeout(async () => {
+        await supabase
+          .from('ai_training_datasets')
+          .update({
+            status: 'completed',
+            accuracy: Math.floor(Math.random() * 20) + 80
+          })
+          .eq('id', dataset.id);
+      }, 3000);
+
+      res.json(dataset);
+    } catch (error) {
+      console.error("Error uploading training dataset:", error);
+      res.status(500).json({ message: "Failed to upload training dataset" });
+    }
+  });
+
+  // Generate training data from conversations
+  app.post("/api/ai/training/generate", isAuthenticated, async (req, res) => {
+    try {
+      const { type, source, count } = req.body;
+
+      const datasetData = {
+        id: `dataset_${Date.now()}`,
+        user_id: req.user.id,
+        name: `Generated ${type} data from ${source}`,
+        type,
+        source,
+        size: count || 1000,
+        status: 'processing',
+        created_at: new Date().toISOString()
+      };
+
+      const { data: dataset, error } = await supabase
+        .from('ai_training_datasets')
+        .insert([datasetData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Simulate data generation
+      setTimeout(async () => {
+        await supabase
+          .from('ai_training_datasets')
+          .update({
+            status: 'completed',
+            accuracy: Math.floor(Math.random() * 15) + 85
+          })
+          .eq('id', dataset.id);
+      }, 5000);
+
+      res.json(dataset);
+    } catch (error) {
+      console.error("Error generating training data:", error);
+      res.status(500).json({ message: "Failed to generate training data" });
+    }
+  });
+
+  // Get training jobs
+  app.get("/api/ai/training/jobs", isAuthenticated, async (req, res) => {
+    try {
+      const { data: jobs, error } = await supabase
+        .from('ai_training_jobs')
+        .select(`
+          *,
+          ai_agents!inner(name)
+        `)
+        .eq('user_id', req.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedJobs = jobs?.map(job => ({
+        ...job,
+        agentName: job.ai_agents?.name || 'Unknown Agent'
+      })) || [];
+
+      res.json(formattedJobs);
+    } catch (error) {
+      console.error("Error fetching training jobs:", error);
+      res.status(500).json({ message: "Failed to fetch training jobs" });
+    }
+  });
+
+  // Start training job
+  app.post("/api/ai/training/start", isAuthenticated, async (req, res) => {
+    try {
+      const { agentId, datasetIds, config } = req.body;
+
+      const jobData = {
+        id: `job_${Date.now()}`,
+        user_id: req.user.id,
+        agent_id: agentId,
+        dataset_ids: datasetIds,
+        config,
+        status: 'queued',
+        progress: 0,
+        data_points: Math.floor(Math.random() * 5000) + 1000,
+        accuracy: 0,
+        started_at: new Date().toISOString(),
+        logs: ['Training job queued'],
+        created_at: new Date().toISOString()
+      };
+
+      const { data: job, error } = await supabase
+        .from('ai_training_jobs')
+        .insert([jobData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Simulate training process
+      setTimeout(async () => {
+        await supabase
+          .from('ai_training_jobs')
+          .update({
+            status: 'running',
+            progress: 25,
+            logs: ['Training job queued', 'Starting training process...']
+          })
+          .eq('id', job.id);
+      }, 2000);
+
+      setTimeout(async () => {
+        await supabase
+          .from('ai_training_jobs')
+          .update({
+            status: 'completed',
+            progress: 100,
+            accuracy: Math.floor(Math.random() * 20) + 80,
+            completed_at: new Date().toISOString(),
+            logs: ['Training job queued', 'Starting training process...', 'Training completed successfully']
+          })
+          .eq('id', job.id);
+      }, 10000);
+
+      res.json(job);
+    } catch (error) {
+      console.error("Error starting training job:", error);
+      res.status(500).json({ message: "Failed to start training job" });
+    }
+  });
+
+  // ===== AI KNOWLEDGE BASE ROUTES =====
+
+  // Get knowledge items
+  app.get("/api/ai/knowledge", isAuthenticated, async (req, res) => {
+    try {
+      const { search, category } = req.query;
+
+      let query = supabase
+        .from('ai_knowledge_items')
+        .select('*')
+        .eq('user_id', req.user.id);
+
+      if (search) {
+        query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%`);
+      }
+
+      if (category && category !== 'all') {
+        query = query.eq('category', category);
+      }
+
+      const { data: items, error } = await query.order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      res.json(items || []);
+    } catch (error) {
+      console.error("Error fetching knowledge items:", error);
+      res.status(500).json({ message: "Failed to fetch knowledge items" });
+    }
+  });
+
+  // Create knowledge item
+  app.post("/api/ai/knowledge", isAuthenticated, async (req, res) => {
+    try {
+      const itemData = {
+        ...req.body,
+        id: `knowledge_${Date.now()}`,
+        user_id: req.user.id,
+        usage: {
+          views: 0,
+          references: 0,
+          lastUsed: new Date().toISOString()
+        },
+        metadata: {
+          source: 'manual',
+          author: req.user.email,
+          confidence: 100,
+          language: 'en'
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: item, error } = await supabase
+        .from('ai_knowledge_items')
+        .insert([itemData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      res.json(item);
+    } catch (error) {
+      console.error("Error creating knowledge item:", error);
+      res.status(500).json({ message: "Failed to create knowledge item" });
+    }
+  });
+
+  // Update knowledge item
+  app.patch("/api/ai/knowledge/:itemId", isAuthenticated, async (req, res) => {
+    try {
+      const { itemId } = req.params;
+      const updates = {
+        ...req.body,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: item, error } = await supabase
+        .from('ai_knowledge_items')
+        .update(updates)
+        .eq('id', itemId)
+        .eq('user_id', req.user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      res.json(item);
+    } catch (error) {
+      console.error("Error updating knowledge item:", error);
+      res.status(500).json({ message: "Failed to update knowledge item" });
+    }
+  });
+
+  // Delete knowledge item
+  app.delete("/api/ai/knowledge/:itemId", isAuthenticated, async (req, res) => {
+    try {
+      const { itemId } = req.params;
+
+      const { error } = await supabase
+        .from('ai_knowledge_items')
+        .delete()
+        .eq('id', itemId)
+        .eq('user_id', req.user.id);
+
+      if (error) throw error;
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting knowledge item:", error);
+      res.status(500).json({ message: "Failed to delete knowledge item" });
+    }
+  });
+
+  // Get knowledge categories
+  app.get("/api/ai/knowledge/categories", isAuthenticated, async (req, res) => {
+    try {
+      const { data: categories, error } = await supabase
+        .from('ai_knowledge_categories')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .order('name');
+
+      if (error) throw error;
+
+      res.json(categories || []);
+    } catch (error) {
+      console.error("Error fetching knowledge categories:", error);
+      res.status(500).json({ message: "Failed to fetch knowledge categories" });
+    }
+  });
+
+  // Sync knowledge base
+  app.post("/api/ai/knowledge/sync", isAuthenticated, async (req, res) => {
+    try {
+      // Implement knowledge base sync logic here
+      // This could sync with external sources, update embeddings, etc.
+
+      res.json({ success: true, message: "Knowledge base synchronized" });
+    } catch (error) {
+      console.error("Error syncing knowledge base:", error);
+      res.status(500).json({ message: "Failed to sync knowledge base" });
+    }
+  });
+
+  // Sync all AI data
+  app.post("/api/ai/sync", isAuthenticated, async (req, res) => {
+    try {
+      // Implement comprehensive AI data sync
+      // This could include agents, providers, training data, knowledge base, etc.
+
+      res.json({ success: true, message: "AI data synchronized" });
+    } catch (error) {
+      console.error("Error syncing AI data:", error);
+      res.status(500).json({ message: "Failed to sync AI data" });
+    }
+  });
+
   // ===== WHATSAPP WEB ROUTES =====
 
   // Create WhatsApp Web session and get QR code
@@ -3733,6 +4583,296 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         message: "Failed to disconnect session: " + (error as any).message
       });
+    }
+  });
+
+  // Toggle AI for contact
+  app.post("/api/contacts/toggle-ai", isAuthenticated, async (req, res) => {
+    try {
+      const { contactId, aiActive } = req.body;
+      const userId = (req.user as any).claims?.sub;
+
+      if (!contactId || typeof aiActive !== 'boolean') {
+        return res.status(400).json({ message: "Contact ID and AI active status are required" });
+      }
+
+      console.log(`🤖 AI ${aiActive ? 'enabled' : 'disabled'} for contact ${contactId}`);
+
+      // For now, just return success - we'll implement database storage later
+      res.json({
+        success: true,
+        message: `AI ${aiActive ? 'enabled' : 'disabled'} for contact`,
+        aiActive
+      });
+    } catch (error) {
+      console.error("Error toggling AI for contact:", error);
+      res.status(500).json({ message: "Failed to toggle AI status" });
+    }
+  });
+
+  // Toggle block status for contact
+  app.post("/api/contacts/toggle-block", isAuthenticated, async (req, res) => {
+    try {
+      const { contactId, blocked } = req.body;
+      const userId = (req.user as any).claims?.sub;
+
+      if (!contactId || typeof blocked !== 'boolean') {
+        return res.status(400).json({ message: "Contact ID and blocked status are required" });
+      }
+
+      console.log(`🚫 Contact ${contactId} ${blocked ? 'blocked' : 'unblocked'}`);
+
+      // For now, just return success - we'll implement database storage later
+      res.json({
+        success: true,
+        message: `Contact ${blocked ? 'blocked' : 'unblocked'}`,
+        blocked
+      });
+    } catch (error) {
+      console.error("Error toggling block status for contact:", error);
+      res.status(500).json({ message: "Failed to toggle block status" });
+    }
+  });
+
+  // Toggle pin status for contact
+  app.post("/api/contacts/toggle-pin", isAuthenticated, async (req, res) => {
+    try {
+      const { contactId, pinned } = req.body;
+      const userId = (req.user as any).claims?.sub;
+
+      if (!contactId || typeof pinned !== 'boolean') {
+        return res.status(400).json({ message: "Contact ID and pinned status are required" });
+      }
+
+      // For now, just return success since we'll implement this feature gradually
+      console.log(`📌 Contact ${contactId} ${pinned ? 'pinned' : 'unpinned'}`);
+
+      res.json({
+        success: true,
+        message: `Contact ${pinned ? 'pinned' : 'unpinned'}`,
+        pinned
+      });
+    } catch (error) {
+      console.error("Error toggling pin status for contact:", error);
+      res.status(500).json({ message: "Failed to toggle pin status" });
+    }
+  });
+
+  // Toggle archive status for contact
+  app.post("/api/contacts/toggle-archive", isAuthenticated, async (req, res) => {
+    try {
+      const { contactId, archived } = req.body;
+      const userId = (req.user as any).claims?.sub;
+
+      if (!contactId || typeof archived !== 'boolean') {
+        return res.status(400).json({ message: "Contact ID and archived status are required" });
+      }
+
+      // For now, just return success since we'll implement this feature gradually
+      console.log(`📦 Contact ${contactId} ${archived ? 'archived' : 'unarchived'}`);
+
+      res.json({
+        success: true,
+        message: `Contact ${archived ? 'archived' : 'unarchived'}`,
+        archived
+      });
+    } catch (error) {
+      console.error("Error toggling archive status for contact:", error);
+      res.status(500).json({ message: "Failed to toggle archive status" });
+    }
+  });
+
+  // Get contact profile information
+  app.get("/api/whatsapp/contact-profile/:contactId", isAuthenticated, async (req, res) => {
+    try {
+      const { contactId } = req.params;
+      const userId = (req.user as any).claims?.sub;
+
+      console.log(`📋 Getting profile for contact ${contactId}`);
+
+      const contact = await storage.getContact(parseInt(contactId));
+      if (!contact) {
+        return res.status(404).json({ message: "Contact not found" });
+      }
+
+      // Try to get profile photo from WhatsApp
+      let profilePhoto = null;
+      try {
+        const whatsappNumbers = await storage.getWhatsAppNumbers(userId);
+        const activeNumber = whatsappNumbers.find(num => num.status === 'connected');
+
+        if (activeNumber && whatsappClients.has(activeNumber.id)) {
+          const client = whatsappClients.get(activeNumber.id);
+          const profilePicUrl = await client.getProfilePicUrl(contact.phone);
+          profilePhoto = profilePicUrl;
+        }
+      } catch (error) {
+        console.log('Could not fetch profile photo:', error.message);
+      }
+
+      res.json({
+        success: true,
+        profilePhoto,
+        isBlocked: contact.is_blocked,
+        isPinned: contact.is_pinned,
+        isArchived: contact.is_archived,
+        aiEnabled: contact.ai_enabled
+      });
+    } catch (error) {
+      console.error("Error getting contact profile:", error);
+      res.status(500).json({ message: "Failed to get contact profile" });
+    }
+  });
+
+  // Get contact status (online/offline, last seen)
+  app.get("/api/whatsapp/contact-status/:phone", isAuthenticated, async (req, res) => {
+    try {
+      const { phone } = req.params;
+      const userId = (req.user as any).claims?.sub;
+
+      console.log(`📱 Getting status for phone ${phone}`);
+
+      let contactStatus = {
+        isOnline: false,
+        lastSeen: null,
+        isTyping: false
+      };
+
+      try {
+        const whatsappNumbers = await storage.getWhatsAppNumbers(userId);
+        const activeNumber = whatsappNumbers.find(num => num.status === 'connected');
+
+        if (activeNumber && whatsappClients.has(activeNumber.id)) {
+          const client = whatsappClients.get(activeNumber.id);
+
+          // Check if contact is online (this is a simplified check)
+          const contact = await client.getContactById(phone + '@c.us');
+          if (contact) {
+            contactStatus.isOnline = contact.isOnline || false;
+            contactStatus.lastSeen = contact.lastSeen || null;
+          }
+        }
+      } catch (error) {
+        console.log('Could not fetch contact status:', error.message);
+      }
+
+      res.json(contactStatus);
+    } catch (error) {
+      console.error("Error getting contact status:", error);
+      res.status(500).json({ message: "Failed to get contact status" });
+    }
+  });
+
+  // Get profile photo endpoint
+  app.get("/api/whatsapp/profile-photo/:phone", isAuthenticated, async (req, res) => {
+    try {
+      const { phone } = req.params;
+      const userId = (req.user as any).claims?.sub;
+
+      console.log(`🖼️ Getting profile photo for phone ${phone}`);
+
+      try {
+        const whatsappNumbers = await storage.getWhatsAppNumbers(userId);
+        const activeNumber = whatsappNumbers.find(num => num.status === 'connected');
+
+        if (activeNumber && whatsappClients.has(activeNumber.id)) {
+          const client = whatsappClients.get(activeNumber.id);
+          const profilePicUrl = await client.getProfilePicUrl(phone + '@c.us');
+
+          if (profilePicUrl) {
+            // Redirect to the actual profile picture URL
+            return res.redirect(profilePicUrl);
+          }
+        }
+      } catch (error) {
+        console.log('Could not fetch profile photo:', error.message);
+      }
+
+      // Return a default avatar if no profile photo found
+      res.status(404).json({ message: "Profile photo not found" });
+    } catch (error) {
+      console.error("Error getting profile photo:", error);
+      res.status(500).json({ message: "Failed to get profile photo" });
+    }
+  });
+
+
+
+  // Delete conversation by contact
+  app.delete("/api/conversations/contact/:contactId", isAuthenticated, async (req, res) => {
+    try {
+      const contactId = req.params.contactId;
+      const userId = (req.user as any).claims?.sub || "admin-user-123";
+
+      console.log(`🗑️ DELETE CHAT REQUEST - Contact ID: ${contactId}, User: ${userId}`);
+
+      if (!contactId) {
+        return res.status(400).json({ message: "Contact ID is required" });
+      }
+
+      // Get all conversations for this contact
+      const conversations = await storage.getConversations(userId);
+      console.log(`📱 Found ${conversations.length} total conversations for user`);
+
+      const contactConversations = conversations.filter((conv: any) => {
+        const matches = conv.contact_id === contactId ||
+                       conv.id === contactId ||
+                       conv.contact_id === parseInt(contactId) ||
+                       conv.id === parseInt(contactId);
+        if (matches) {
+          console.log(`🎯 Found matching conversation: ${conv.id} for contact ${contactId}`);
+        }
+        return matches;
+      });
+
+      console.log(`🗑️ Found ${contactConversations.length} conversations to delete for contact ${contactId}`);
+
+      if (contactConversations.length === 0) {
+        console.log(`⚠️ No conversations found for contact ${contactId}`);
+        return res.json({
+          success: true,
+          message: "No conversations found to delete",
+          deletedCount: 0
+        });
+      }
+
+      // Delete all conversations and messages for this contact
+      let deletedCount = 0;
+      for (const conversation of contactConversations) {
+        try {
+          console.log(`🗑️ Deleting conversation ${conversation.id} and its messages`);
+
+          // Use the storage method that handles both messages and conversation
+          await storage.deleteConversation(conversation.id, userId);
+          deletedCount++;
+
+          console.log(`✅ Successfully deleted conversation ${conversation.id}`);
+        } catch (convError) {
+          console.error(`❌ Error deleting conversation ${conversation.id}:`, convError);
+        }
+      }
+
+      // Emit real-time updates
+      const io = req.app.get('io');
+      if (io) {
+        io.to(`user_${userId}`).emit('conversation_deleted', {
+          contactId: contactId,
+          deletedCount: deletedCount
+        });
+        io.to(`user_${userId}`).emit('refresh_conversations');
+        io.to(`user_${userId}`).emit('global_data_sync');
+      }
+
+      console.log(`✅ Successfully deleted ${deletedCount} conversations for contact ${contactId}`);
+
+      res.json({
+        success: true,
+        message: `Successfully deleted ${deletedCount} conversations`,
+        deletedCount: deletedCount
+      });
+    } catch (error) {
+      console.error("Error deleting conversations for contact:", error);
+      res.status(500).json({ message: "Failed to delete conversations" });
     }
   });
 

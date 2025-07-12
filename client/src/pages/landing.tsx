@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import WhatsProLogo from "@/components/ui/whatspro-logo";
 import { 
   MessageCircle, 
   Users, 
@@ -161,34 +162,21 @@ export default function Landing() {
               </div>
             </div>
 
-            <div className="relative">
-              <div className="bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl p-8 shadow-2xl">
-                <div className="bg-white rounded-xl p-6 space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <Smartphone className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="font-semibold text-gray-900">WhatsApp Business</span>
+            <div className="relative flex justify-center">
+              <div className="bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl p-12 shadow-2xl">
+                <div className="bg-white rounded-xl p-8 flex flex-col items-center space-y-6">
+                  <WhatsProLogo size={200} animated={true} />
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">WhatsPro Platform</h3>
+                    <p className="text-gray-600">Professional WhatsApp Marketing Solution</p>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                      <span className="text-sm text-gray-700">Messages Sent Today</span>
-                      <span className="font-bold text-green-600">1,247</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                      <span className="text-sm text-gray-700">Delivery Rate</span>
-                      <span className="font-bold text-blue-600">98.5%</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                      <span className="text-sm text-gray-700">Active Campaigns</span>
-                      <span className="font-bold text-purple-600">12</span>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    View Full Dashboard
+                  <Button
+                    onClick={() => window.location.href = '/logo-showcase'}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    View Logo Showcase
                   </Button>
                 </div>
               </div>

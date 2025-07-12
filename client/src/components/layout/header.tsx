@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Bell, Plus } from "lucide-react";
-import { RealTimeStatus } from "@/components/ui/real-time-status";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { EnhancedWelcomeMessage, FloatingWordsWelcome } from "@/components/ui/animated-welcome-message";
+import { BackgroundQuickSettings } from "@/components/ui/background-controls";
 
 interface HeaderProps {
   title: string;
@@ -37,11 +37,6 @@ export default function Header({ title, subtitle, primaryAction, secondaryAction
           )}
         </div>
         <div className="flex items-center space-x-3">
-          {/* Real-time Status Indicator */}
-          <div className="animate-scale-in">
-            <RealTimeStatus />
-          </div>
-
           {secondaryAction && (
             <div className="animate-slide-up" style={{ animationDelay: '100ms' }}>
               {secondaryAction.component ? secondaryAction.component : (
@@ -71,6 +66,10 @@ export default function Header({ title, subtitle, primaryAction, secondaryAction
           )}
 
           <div className="animate-slide-up" style={{ animationDelay: '300ms' }}>
+            <BackgroundQuickSettings />
+          </div>
+
+          <div className="animate-slide-up" style={{ animationDelay: '350ms' }}>
             <ThemeToggle />
           </div>
 

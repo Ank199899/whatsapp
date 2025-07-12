@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
+import WhatsProLogo from "@/components/ui/whatspro-logo";
 import {
   BarChart,
   Inbox,
@@ -27,24 +28,23 @@ import {
   Contact,
   MessageSquare,
   Send,
-  Archive,
-  Star
+  Archive
 } from "lucide-react";
+
+// Create context for sidebar state
+const SidebarContext = createContext<{
+  isVisible: boolean;
+  setVisible: (visible: boolean) => void;
+}>({
+  isVisible: true,
+  setVisible: () => {},
+});
+
+export const useSidebarContext = () => useContext(SidebarContext);
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: BarChart },
-  {
-    name: 'Inbox',
-    href: '/inbox',
-    icon: Inbox,
-    hasSubmenu: true,
-    submenu: [
-      { name: 'All Messages', href: '/inbox', icon: MessageSquare },
-      { name: 'Direct Message', href: '/inbox/direct', icon: Send },
-      { name: 'Starred', href: '/inbox/starred', icon: Star },
-      { name: 'Archived', href: '/inbox/archived', icon: Archive },
-    ]
-  },
+  { name: 'Inbox', href: '/inbox', icon: Inbox },
   { name: 'Campaigns', href: '/campaigns', icon: Megaphone },
   {
     name: 'Contacts',
@@ -67,7 +67,8 @@ const navigation = [
 export default function Sidebar() {
   const [location, setLocation] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Contacts', 'Inbox']); // Contacts and Inbox expanded by default
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Contacts']); // Only Contacts expanded by default
+  const [isVisible, setVisible] = useState(true);
   const { user } = useAuth();
 
   const { data: conversations } = useQuery({
@@ -84,6 +85,10 @@ export default function Sidebar() {
   const handleNavigation = (href: string) => {
     setLocation(href);
     setIsMobileMenuOpen(false);
+    // Auto-hide sidebar when navigating to a section
+    setTimeout(() => {
+      setVisible(false);
+    }, 300);
   };
 
   const toggleSubmenu = (menuName: string) => {
@@ -106,7 +111,7 @@ export default function Sidebar() {
   };
 
   return (
-    <>
+    <SidebarContext.Provider value={{ isVisible, setVisible }}>
       {/* Mobile menu button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <Button
@@ -119,29 +124,53 @@ export default function Sidebar() {
         </Button>
       </div>
 
+      {/* Sidebar Toggle Button - Shows when sidebar is hidden */}
+      {!isVisible && (
+        <div className="fixed top-4 left-4 z-50 animate-bounce">
+          <Button
+            onClick={() => setVisible(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full h-12 w-12 p-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+            title="Show sidebar"
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
+
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={toggleMobileMenu} />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar Container - This handles the width allocation */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 sidebar-modern transform transition-all duration-500 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
-        "shadow-modern-xl backdrop-blur-sm",
-        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        "transition-all duration-500 ease-in-out lg:relative lg:flex-shrink-0",
+        isVisible ? "lg:w-64" : "lg:w-0"
       )}>
+        {/* Sidebar */}
+        <div className={cn(
+          "fixed inset-y-0 left-0 z-40 w-64 sidebar-modern transform transition-all duration-500 ease-in-out shadow-modern-xl backdrop-blur-sm",
+          "lg:absolute lg:inset-0 lg:z-auto lg:w-full",
+          isVisible ? "translate-x-0" : "-translate-x-full",
+          isMobileMenuOpen ? "translate-x-0" : (isVisible ? "translate-x-0" : "-translate-x-full")
+        )}>
         <div className="flex flex-col h-full">
           {/* Logo Section */}
           <div className="p-6 border-b border-border/50">
-            <div className="flex items-center space-x-3 animate-fade-in">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center relative overflow-hidden group">
-                <div className="absolute inset-0 bg-animated"></div>
-                <MessageCircle className="w-6 h-6 text-white relative z-10 group-hover:scale-110 transition-transform duration-300" />
+            <div className="flex items-center justify-between animate-fade-in">
+              <div className="flex items-center space-x-3">
+                <WhatsProLogo size={80} animated={true} />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gradient">WhatsApp Pro</h1>
-                <p className="text-xs text-muted-foreground">Marketing Platform</p>
-              </div>
+              {/* Hide Sidebar Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setVisible(false)}
+                className="h-8 w-8 p-0 hover:bg-primary/10"
+                title="Hide sidebar"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -264,7 +293,8 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </>
+    </SidebarContext.Provider>
   );
 }

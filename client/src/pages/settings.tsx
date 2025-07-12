@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BackgroundControlPanel } from "@/components/ui/background-controls";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -114,6 +115,11 @@ export default function Settings() {
           subtitle="Configure your account and messaging preferences"
         />
         <main className="flex-1 overflow-auto p-6">
+          {/* Background Effects Settings */}
+          <div className="mb-6">
+            <BackgroundControlPanel />
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Anti-Blocking Settings */}
             <Card>

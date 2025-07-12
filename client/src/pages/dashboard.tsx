@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { QuickActionFAB } from "@/components/ui/floating-action-button";
 import { Send, CheckCircle, Eye, MessageCircle, Play, Clock, Check, Users, FileText } from "lucide-react";
-import { AnimatedEmojiWidget } from "@/components/ui/animated-emoji-widget";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -39,10 +38,6 @@ export default function Dashboard() {
         <Header
           title="Dashboard"
           subtitle="Welcome back! Here's your marketing overview"
-          primaryAction={{
-            label: "",
-            component: <AnimatedEmojiWidget />
-          }}
         />
         <main className="flex-1 overflow-auto p-6 space-y-8">
           {/* Stats Cards */}

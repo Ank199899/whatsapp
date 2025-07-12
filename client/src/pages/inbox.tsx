@@ -60,7 +60,7 @@ export default function Inbox() {
       <HeaderVisibilityContext.Provider value={{ isHeaderVisible, setHeaderVisible }}>
         <div className="h-screen flex bg-gradient-to-br from-background via-background-secondary to-background-tertiary">
           <Sidebar />
-          <div className="flex-1 flex flex-col relative">
+          <div className="flex-1 flex flex-col relative transition-all duration-500 ease-in-out">
             {/* Sliding Header */}
             <div
               className={`absolute top-0 left-0 right-0 z-50 sliding-header ${

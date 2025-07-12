@@ -172,6 +172,11 @@ export interface Database {
           status: string | null
           last_contacted_at: string | null
           notes: string | null
+          ai_enabled: boolean | null
+          is_blocked: boolean | null
+          is_pinned: boolean | null
+          is_archived: boolean | null
+          profile_photo_url: string | null
           created_at: string
           updated_at: string
         }
@@ -186,6 +191,11 @@ export interface Database {
           status?: string | null
           last_contacted_at?: string | null
           notes?: string | null
+          ai_enabled?: boolean | null
+          is_blocked?: boolean | null
+          is_pinned?: boolean | null
+          is_archived?: boolean | null
+          profile_photo_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -200,6 +210,11 @@ export interface Database {
           status?: string | null
           last_contacted_at?: string | null
           notes?: string | null
+          ai_enabled?: boolean | null
+          is_blocked?: boolean | null
+          is_pinned?: boolean | null
+          is_archived?: boolean | null
+          profile_photo_url?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -412,6 +427,7 @@ export interface Database {
           status: string | null
           ai_enabled: boolean | null
           is_blocked: boolean | null
+          is_pinned: boolean | null
           created_at: string
           updated_at: string
         }
@@ -429,6 +445,7 @@ export interface Database {
           status?: string | null
           ai_enabled?: boolean | null
           is_blocked?: boolean | null
+          is_pinned?: boolean | null
           created_at?: string
           updated_at?: string
         }
@@ -446,6 +463,7 @@ export interface Database {
           status?: string | null
           ai_enabled?: boolean | null
           is_blocked?: boolean | null
+          is_pinned?: boolean | null
           created_at?: string
           updated_at?: string
         }
