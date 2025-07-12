@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: whatsapp-postgres
+    environment:
+      POSTGRES_DB: whatsapp_marketing
+      POSTGRES_USER: whatsapp_user
+      POSTGRES_PASSWORD: WhatsApp@2024!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U whatsapp_user -d whatsapp_marketing"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # WhatsApp Marketing Application
+  whatsapp-app:
+    build: .
+    container_name: whatsapp-marketing
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://whatsapp_user:WhatsApp@2024!@postgres:5432/whatsapp_marketing
+      SESSION_SECRET: whatsapp_marketing_super_secret_session_key_2024_very_long_and_secure_random_string
+      WHATSAPP_SESSION_PATH: /app/whatsapp-web-sessions
+      WHATSAPP_MAX_SESSIONS: 10
+      UPLOAD_PATH: /app/uploads
+      MAX_FILE_SIZE: 10485760
+      CORS_ORIGIN: "*"
+      RATE_LIMIT_WINDOW_MS: 900000
+      RATE_LIMIT_MAX_REQUESTS: 100
+      LOG_LEVEL: info
+      DISABLE_AUTH: "true"
+      AUTO_ADMIN: "true"
+    volumes:
+      - whatsapp_sessions:/app/whatsapp-web-sessions
+      - whatsapp_uploads:/app/uploads
+      - whatsapp_logs:/app/logs
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: whatsapp-nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - whatsapp-app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  whatsapp_sessions:
+    driver: local
+  whatsapp_uploads:
+    driver: local
+  whatsapp_logs:
+    driver: local
+
+networks:
+  default:
+    name: whatsapp-network
