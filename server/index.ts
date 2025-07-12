@@ -573,6 +573,11 @@ async function startServer() {
     }
   }
 
+  // Add a basic GET / route
+  app.get('/', (req, res) => {
+    res.send("✅ Backend is working!");
+  });
+
   // ALWAYS serve the app on port 3000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
